@@ -453,12 +453,10 @@ body {
     gap: 0.25rem;
   }
 
-  /* Hide decorative icons on very small screens to save space */
+  /* Very small screens: keep timer visible and compact */
   @media (max-width: 380px) {
-
-    #urgency-bar .text-xl,
-    #urgency-bar .text-lg {
-      display: none;
+    #countdown-timer {
+      font-size: 0.95rem !important;
     }
 
     #urgency-bar span:first-child {

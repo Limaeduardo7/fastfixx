@@ -13,9 +13,17 @@ const TEST_EVENT_CODE = process.env.META_TEST_EVENT_CODE;
 const HOTMART_WEBHOOK_TOKEN = process.env.HOTMART_WEBHOOK_TOKEN;
 const EVENTS_LOG_PATH = process.env.EVENTS_LOG_PATH || '/root/fastfixx/capi-server/logs/events.log';
 
+const EVOLUTION_BASE_URL = process.env.EVOLUTION_BASE_URL || 'http://127.0.0.1:8082';
+const EVOLUTION_API_KEY = process.env.EVOLUTION_API_KEY;
+const EVOLUTION_INSTANCE = process.env.EVOLUTION_INSTANCE || 'default';
+const EVOLUTION_SEND_PATH = process.env.EVOLUTION_SEND_PATH || '/message/sendText/{instance}';
+const AUTOMATION_JOBS_PATH = process.env.AUTOMATION_JOBS_PATH || '/root/fastfixx/capi-server/data/automation-jobs.json';
+
 if (!PIXEL_ID || !ACCESS_TOKEN) {
   console.error('Faltando META_PIXEL_ID ou META_ACCESS_TOKEN no ambiente.');
 }
+
+const scheduledJobs = new Map();
 
 function sha256(value) {
   if (!value) return undefined;
@@ -24,7 +32,9 @@ function sha256(value) {
 
 function normalizePhone(phone) {
   if (!phone) return undefined;
-  return String(phone).replace(/\D/g, '');
+  const normalized = String(phone).replace(/\D/g, '');
+  if (!normalized) return undefined;
+  return normalized;
 }
 
 function getClientMeta(req) {
@@ -89,6 +99,110 @@ async function readEventLogs(limit = 50) {
   } catch {
     return [];
   }
+}
+
+async function persistJobs() {
+  const serializable = Array.from(scheduledJobs.values()).map((j) => ({
+    ...j,
+    timeoutId: undefined,
+  }));
+  await fs.mkdir(path.dirname(AUTOMATION_JOBS_PATH), { recursive: true });
+  await fs.writeFile(AUTOMATION_JOBS_PATH, JSON.stringify(serializable, null, 2), 'utf8');
+}
+
+async function sendWhatsAppText(phone, text) {
+  const normalized = normalizePhone(phone);
+  if (!normalized) throw new Error('Telefone inválido para envio');
+  if (!EVOLUTION_API_KEY) throw new Error('EVOLUTION_API_KEY não configurada');
+
+  const endpoint = `${EVOLUTION_BASE_URL}${EVOLUTION_SEND_PATH.replace('{instance}', EVOLUTION_INSTANCE)}`;
+  const payload = {
+    number: normalized,
+    text,
+    options: {
+      delay: 800,
+      presence: 'composing',
+    },
+  };
+
+  const res = await fetch(endpoint, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      apikey: EVOLUTION_API_KEY,
+    },
+    body: JSON.stringify(payload),
+  });
+
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(`Falha Evolution: ${JSON.stringify(data)}`);
+  }
+
+  return data;
+}
+
+function scheduleAutomation({ leadId, flow, step, phone, text, delayMs, meta = {} }) {
+  const id = crypto.randomUUID();
+  const executeAt = Date.now() + delayMs;
+
+  const job = {
+    id,
+    leadId,
+    flow,
+    step,
+    phone: normalizePhone(phone),
+    text,
+    delayMs,
+    status: 'scheduled',
+    createdAt: new Date().toISOString(),
+    executeAt: new Date(executeAt).toISOString(),
+    meta,
+  };
+
+  const timeoutId = setTimeout(async () => {
+    const current = scheduledJobs.get(id);
+    if (!current || current.status !== 'scheduled') return;
+
+    try {
+      const evolution = await sendWhatsAppText(current.phone, current.text);
+      current.status = 'sent';
+      current.sentAt = new Date().toISOString();
+      current.evolution = evolution;
+      await appendEventLog({ ts: current.sentAt, source: 'automation', action: 'sent', flow, step, leadId, phone: current.phone });
+    } catch (err) {
+      current.status = 'failed';
+      current.error = err.message;
+      current.failedAt = new Date().toISOString();
+      await appendEventLog({ ts: current.failedAt, source: 'automation', action: 'failed', flow, step, leadId, error: err.message });
+    }
+
+    scheduledJobs.set(id, current);
+    await persistJobs();
+  }, delayMs);
+
+  job.timeoutId = timeoutId;
+  scheduledJobs.set(id, job);
+  persistJobs().catch(() => {});
+  return job;
+}
+
+function cancelLeadAutomations(leadId) {
+  if (!leadId) return 0;
+  let canceled = 0;
+
+  for (const [id, job] of scheduledJobs.entries()) {
+    if (job.leadId === leadId && job.status === 'scheduled') {
+      clearTimeout(job.timeoutId);
+      job.status = 'canceled';
+      job.canceledAt = new Date().toISOString();
+      scheduledJobs.set(id, job);
+      canceled += 1;
+    }
+  }
+
+  persistJobs().catch(() => {});
+  return canceled;
 }
 
 async function sendMetaEvent({
@@ -158,13 +272,7 @@ function parseHotmartPayload(payload = {}) {
   const transaction = data.transaction || payload.transaction || {};
 
   const statusRaw = (
-    data.status ||
-    transaction.status ||
-    purchase.status ||
-    payload.status ||
-    payload.event ||
-    payload.event_name ||
-    ''
+    data.status || transaction.status || purchase.status || payload.status || payload.event || payload.event_name || ''
   )
     .toString()
     .toLowerCase();
@@ -178,31 +286,10 @@ function parseHotmartPayload(payload = {}) {
     mappedEvent = 'Refund';
   }
 
-  const valueRaw =
-    purchase.price?.value ||
-    purchase.value ||
-    transaction.value ||
-    data.price ||
-    payload.price ||
-    0;
-
+  const valueRaw = purchase.price?.value || purchase.value || transaction.value || data.price || payload.price || 0;
   const value = Number(valueRaw) || 0;
-  const currency =
-    purchase.price?.currency_code ||
-    purchase.currency ||
-    data.currency ||
-    payload.currency ||
-    'BRL';
-
-  const baseId = String(
-    transaction.id ||
-      purchase.order_id ||
-      purchase.transaction ||
-      data.id ||
-      payload.id ||
-      crypto.randomUUID()
-  );
-
+  const currency = purchase.price?.currency_code || purchase.currency || data.currency || payload.currency || 'BRL';
+  const baseId = String(transaction.id || purchase.order_id || purchase.transaction || data.id || payload.id || crypto.randomUUID());
   const tracking = extractTracking(payload);
   const eventId = `${baseId}_${mappedEvent || 'unknown'}`;
 
@@ -222,13 +309,7 @@ function parseHotmartPayload(payload = {}) {
 
 function validateHotmartToken(req) {
   if (!HOTMART_WEBHOOK_TOKEN) return false;
-  const token =
-    req.headers['x-hotmart-hottok'] ||
-    req.headers['hottok'] ||
-    req.query?.hottok ||
-    req.body?.hottok ||
-    req.body?.token;
-
+  const token = req.headers['x-hotmart-hottok'] || req.headers['hottok'] || req.query?.hottok || req.body?.hottok || req.body?.token;
   return String(token || '') === String(HOTMART_WEBHOOK_TOKEN);
 }
 
@@ -238,6 +319,7 @@ app.get('/health', (_req, res) => {
     service: 'meta-capi',
     pixelConfigured: Boolean(PIXEL_ID),
     hotmartWebhookConfigured: Boolean(HOTMART_WEBHOOK_TOKEN),
+    evolutionConfigured: Boolean(EVOLUTION_API_KEY),
   });
 });
 
@@ -245,6 +327,97 @@ app.get('/api/events/recent', async (req, res) => {
   const limit = Math.min(Number(req.query.limit) || 50, 200);
   const events = await readEventLogs(limit);
   return res.json({ ok: true, count: events.length, events });
+});
+
+app.get('/api/automation/jobs', async (_req, res) => {
+  const jobs = Array.from(scheduledJobs.values()).map((j) => ({ ...j, timeoutId: undefined }));
+  return res.json({ ok: true, count: jobs.length, jobs });
+});
+
+app.post('/api/automation/lead-magnet', async (req, res) => {
+  const { phone, name = 'Tudo bem?', lead_id } = req.body || {};
+  if (!phone || !lead_id) return res.status(400).json({ ok: false, error: 'phone e lead_id são obrigatórios' });
+
+  const jobs = [
+    scheduleAutomation({
+      leadId: lead_id,
+      flow: 'lead_magnet',
+      step: 'instant',
+      phone,
+      delayMs: 15 * 1000,
+      text: `Oi ${name}, aqui é da FastFix 👋\nSeu material já está pronto. Quer que eu te envie agora?`,
+    }),
+    scheduleAutomation({
+      leadId: lead_id,
+      flow: 'lead_magnet',
+      step: 'd1',
+      phone,
+      delayMs: 24 * 60 * 60 * 1000,
+      text: `Passando para saber se conseguiu ver a isca digital 👀\nSe quiser, te mostro o próximo passo para transformar isso em venda.`,
+    }),
+  ];
+
+  return res.json({ ok: true, jobs: jobs.map((j) => ({ ...j, timeoutId: undefined })) });
+});
+
+app.post('/api/automation/waitlist', async (req, res) => {
+  const { phone, name = 'Tudo bem?', lead_id } = req.body || {};
+  if (!phone || !lead_id) return res.status(400).json({ ok: false, error: 'phone e lead_id são obrigatórios' });
+
+  const jobs = [
+    scheduleAutomation({
+      leadId: lead_id,
+      flow: 'waitlist',
+      step: 'welcome',
+      phone,
+      delayMs: 15 * 1000,
+      text: `Oi ${name}, você entrou na lista VIP da FastFix ✅\nQuando abrirmos, você recebe primeiro por aqui.`,
+    }),
+    scheduleAutomation({
+      leadId: lead_id,
+      flow: 'waitlist',
+      step: 'warmup',
+      phone,
+      delayMs: 12 * 60 * 60 * 1000,
+      text: `Aviso rápido: já estamos preparando os conteúdos mais fortes para o lançamento 🔥\nQuer que eu te avise assim que liberar as vagas?`,
+    }),
+  ];
+
+  return res.json({ ok: true, jobs: jobs.map((j) => ({ ...j, timeoutId: undefined })) });
+});
+
+app.post('/api/automation/checkout-abandon', async (req, res) => {
+  const { phone, name = 'Tudo bem?', lead_id } = req.body || {};
+  if (!phone || !lead_id) return res.status(400).json({ ok: false, error: 'phone e lead_id são obrigatórios' });
+
+  const jobs = [
+    scheduleAutomation({
+      leadId: lead_id,
+      flow: 'checkout_abandon',
+      step: '15m',
+      phone,
+      delayMs: 15 * 60 * 1000,
+      text: `Oi ${name}, vi que você quase concluiu sua inscrição na FastFix.\nSe travou em algo (pagamento, acesso, dúvida), me chama que resolvo agora 👍`,
+    }),
+    scheduleAutomation({
+      leadId: lead_id,
+      flow: 'checkout_abandon',
+      step: '2h',
+      phone,
+      delayMs: 2 * 60 * 60 * 1000,
+      text: `Passando para te lembrar da sua vaga na FastFix 🚀\nQuer que eu te envie o link direto para finalizar?`,
+    }),
+    scheduleAutomation({
+      leadId: lead_id,
+      flow: 'checkout_abandon',
+      step: '24h',
+      phone,
+      delayMs: 24 * 60 * 60 * 1000,
+      text: `Último aviso por aqui: sua condição especial pode encerrar em breve ⏳\nSe quiser garantir agora, eu te mando o link em 1 clique.`,
+    }),
+  ];
+
+  return res.json({ ok: true, jobs: jobs.map((j) => ({ ...j, timeoutId: undefined })) });
 });
 
 app.post('/api/meta/events', async (req, res) => {
@@ -305,12 +478,7 @@ app.post('/api/hotmart/webhook', async (req, res) => {
     const parsed = parseHotmartPayload(req.body || {});
 
     if (!parsed.mappedEvent) {
-      await appendEventLog({
-        ts: new Date().toISOString(),
-        source: 'hotmart_webhook',
-        ignored: true,
-        status: parsed.statusRaw,
-      });
+      await appendEventLog({ ts: new Date().toISOString(), source: 'hotmart_webhook', ignored: true, status: parsed.statusRaw });
       return res.json({ ok: true, ignored: true, reason: `status não mapeado: ${parsed.statusRaw}` });
     }
 
@@ -339,6 +507,11 @@ app.post('/api/hotmart/webhook', async (req, res) => {
       ip,
       ua,
     });
+
+    if (parsed.mappedEvent === 'Purchase') {
+      const canceled = cancelLeadAutomations(externalId);
+      await appendEventLog({ ts: new Date().toISOString(), source: 'automation', action: 'cancel_on_purchase', leadId: externalId, canceled });
+    }
 
     await appendEventLog({
       ts: new Date().toISOString(),

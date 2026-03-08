@@ -1,5 +1,7 @@
 import express from 'express';
 import crypto from 'crypto';
+import fs from 'fs/promises';
+import path from 'path';
 
 const app = express();
 app.use(express.json({ limit: '512kb' }));
@@ -9,6 +11,7 @@ const PIXEL_ID = process.env.META_PIXEL_ID;
 const ACCESS_TOKEN = process.env.META_ACCESS_TOKEN;
 const TEST_EVENT_CODE = process.env.META_TEST_EVENT_CODE;
 const HOTMART_WEBHOOK_TOKEN = process.env.HOTMART_WEBHOOK_TOKEN;
+const EVENTS_LOG_PATH = process.env.EVENTS_LOG_PATH || '/root/fastfixx/capi-server/logs/events.log';
 
 if (!PIXEL_ID || !ACCESS_TOKEN) {
   console.error('Faltando META_PIXEL_ID ou META_ACCESS_TOKEN no ambiente.');
@@ -29,6 +32,63 @@ function getClientMeta(req) {
     ip: req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress,
     ua: req.headers['user-agent'],
   };
+}
+
+function pickFirst(...values) {
+  return values.find((v) => v !== undefined && v !== null && String(v).trim() !== '');
+}
+
+function extractTracking(payload = {}) {
+  const data = payload.data || payload;
+  const tracking = data.tracking || payload.tracking || {};
+  const params = data.params || payload.params || {};
+
+  const fbclid = pickFirst(tracking.fbclid, params.fbclid, data.fbclid, payload.fbclid);
+  const fbc = pickFirst(
+    tracking.fbc,
+    params.fbc,
+    data.fbc,
+    payload.fbc,
+    fbclid ? `fb.1.${Date.now()}.${fbclid}` : undefined
+  );
+
+  const fbp = pickFirst(tracking.fbp, params.fbp, data.fbp, payload.fbp);
+  const external_id = pickFirst(
+    tracking.external_id,
+    tracking.lead_id,
+    params.lead_id,
+    data.lead_id,
+    payload.lead_id,
+    data.external_id,
+    payload.external_id
+  );
+
+  return { fbc, fbp, fbclid, external_id };
+}
+
+async function appendEventLog(entry) {
+  try {
+    await fs.mkdir(path.dirname(EVENTS_LOG_PATH), { recursive: true });
+    await fs.appendFile(EVENTS_LOG_PATH, `${JSON.stringify(entry)}\n`, 'utf8');
+  } catch (err) {
+    console.error('Falha ao escrever log de evento:', err.message);
+  }
+}
+
+async function readEventLogs(limit = 50) {
+  try {
+    const raw = await fs.readFile(EVENTS_LOG_PATH, 'utf8');
+    const lines = raw.trim().split('\n').filter(Boolean);
+    return lines.slice(-limit).map((line) => {
+      try {
+        return JSON.parse(line);
+      } catch {
+        return { raw: line };
+      }
+    });
+  } catch {
+    return [];
+  }
 }
 
 async function sendMetaEvent({
@@ -134,15 +194,17 @@ function parseHotmartPayload(payload = {}) {
     payload.currency ||
     'BRL';
 
-  const eventId =
-    String(
-      transaction.id ||
+  const baseId = String(
+    transaction.id ||
       purchase.order_id ||
       purchase.transaction ||
       data.id ||
       payload.id ||
       crypto.randomUUID()
-    ) + `_${mappedEvent || 'unknown'}`;
+  );
+
+  const tracking = extractTracking(payload);
+  const eventId = `${baseId}_${mappedEvent || 'unknown'}`;
 
   return {
     mappedEvent,
@@ -154,6 +216,7 @@ function parseHotmartPayload(payload = {}) {
     productName: product.name || data.product_name,
     buyer,
     payloadData: data,
+    tracking,
   };
 }
 
@@ -170,7 +233,18 @@ function validateHotmartToken(req) {
 }
 
 app.get('/health', (_req, res) => {
-  res.json({ ok: true, service: 'meta-capi', pixelConfigured: Boolean(PIXEL_ID), hotmartWebhookConfigured: Boolean(HOTMART_WEBHOOK_TOKEN) });
+  res.json({
+    ok: true,
+    service: 'meta-capi',
+    pixelConfigured: Boolean(PIXEL_ID),
+    hotmartWebhookConfigured: Boolean(HOTMART_WEBHOOK_TOKEN),
+  });
+});
+
+app.get('/api/events/recent', async (req, res) => {
+  const limit = Math.min(Number(req.query.limit) || 50, 200);
+  const events = await readEventLogs(limit);
+  return res.json({ ok: true, count: events.length, events });
 });
 
 app.post('/api/meta/events', async (req, res) => {
@@ -202,6 +276,19 @@ app.post('/api/meta/events', async (req, res) => {
       ua,
     });
 
+    await appendEventLog({
+      ts: new Date().toISOString(),
+      source: 'site_capi',
+      event_name,
+      event_id,
+      has_em: Boolean(user_data?.email),
+      has_ph: Boolean(user_data?.phone),
+      has_fbc: Boolean(user_data?.fbc),
+      has_fbp: Boolean(user_data?.fbp),
+      has_external_id: Boolean(user_data?.external_id),
+      meta: fbData,
+    });
+
     res.json({ ok: true, meta: fbData });
   } catch (error) {
     res.status(500).json({ ok: false, error: error.meta || error.message });
@@ -218,8 +305,16 @@ app.post('/api/hotmart/webhook', async (req, res) => {
     const parsed = parseHotmartPayload(req.body || {});
 
     if (!parsed.mappedEvent) {
+      await appendEventLog({
+        ts: new Date().toISOString(),
+        source: 'hotmart_webhook',
+        ignored: true,
+        status: parsed.statusRaw,
+      });
       return res.json({ ok: true, ignored: true, reason: `status não mapeado: ${parsed.statusRaw}` });
     }
+
+    const externalId = pickFirst(parsed.tracking.external_id, parsed.orderId);
 
     const fbData = await sendMetaEvent({
       event_name: parsed.mappedEvent,
@@ -237,12 +332,27 @@ app.post('/api/hotmart/webhook', async (req, res) => {
         email: parsed.buyer.email,
         phone: parsed.buyer.checkout_phone || parsed.buyer.phone,
         first_name: parsed.buyer.name ? String(parsed.buyer.name).split(' ')[0] : undefined,
-        external_id: parsed.orderId,
-        fbc: parsed.payloadData?.tracking?.fbc,
-        fbp: parsed.payloadData?.tracking?.fbp,
+        external_id: externalId,
+        fbc: parsed.tracking.fbc,
+        fbp: parsed.tracking.fbp,
       },
       ip,
       ua,
+    });
+
+    await appendEventLog({
+      ts: new Date().toISOString(),
+      source: 'hotmart_webhook',
+      event_name: parsed.mappedEvent,
+      status: parsed.statusRaw,
+      event_id: parsed.eventId,
+      order_id: parsed.orderId,
+      has_em: Boolean(parsed.buyer?.email),
+      has_ph: Boolean(parsed.buyer?.checkout_phone || parsed.buyer?.phone),
+      has_fbc: Boolean(parsed.tracking?.fbc),
+      has_fbp: Boolean(parsed.tracking?.fbp),
+      has_external_id: Boolean(externalId),
+      meta: fbData,
     });
 
     return res.json({ ok: true, mappedEvent: parsed.mappedEvent, status: parsed.statusRaw, meta: fbData });

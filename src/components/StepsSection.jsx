@@ -2,12 +2,11 @@ import { Reveal } from './ScrollReveal';
 import { CTAButton } from './shared';
 
 const steps = [
-    { num: '1', title: 'Análise de Esquemas', desc: 'Leia qualquer esquema elétrico e saiba exatamente onde está o defeito, sem ficar chutando.' },
-    { num: '2', title: 'Micro Soldagem', desc: 'Solde componentes microscópicos com precisão. a habilidade mais valorizada do mercado.' },
-    { num: '3', title: 'Diagnóstico Avançado', desc: 'Localize falhas que outros técnicos não encontram. em minutos, não em horas.' },
-    { num: '4', title: 'Reparo de Trilhas', desc: 'Recupere placas que seriam jogadas fora. e cobre R$ 500+ por cada uma.' },
-    { num: '5', title: 'Reballing Profissional', desc: 'Domine a técnica de BGA que separa amadores de profissionais. e cobra à altura.' },
-    { num: '6', title: 'Limpeza Técnica', desc: 'A etapa invisível que previne 30% dos defeitos. e que quase ninguém ensina direito.' },
+    { num: '1', title: 'Insumos', desc: 'Insumos' },
+    { num: '2', title: 'Leitura de consumo e falhas de boot', desc: 'Leitura de consumo e falhas de boot' },
+    { num: '3', title: 'Micro soldagem cpu e memoria', desc: 'Micro soldagem cpu e memoria' },
+    { num: '4', title: 'Reparos completos microsoldagem e software', desc: 'Reparos completos microsoldagem e software' },
+    { num: '5', title: 'Flash 64', desc: 'Flash 64' },
 ];
 
 export default function StepsSection() {

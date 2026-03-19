@@ -28,7 +28,7 @@ export default function FinalCTASection() {
                     <div className="sm:col-span-2 pt-6 space-y-4">
                         <div className="flex items-center justify-center gap-4">
                             <span className="text-gray-400 text-xl line-through">R$ 1.297,00</span>
-                            <span className="text-4xl font-extrabold text-primary">R$ 497,00</span>
+                            <span className="text-4xl font-extrabold text-primary">R$ 347,00</span>
                         </div>
                         <CTAButton className="w-full shadow-2xl shadow-primary/40 uppercase tracking-widest text-lg py-5 font-extrabold hover:scale-[1.02] active:scale-[0.98]">
                             Entrar agora. acesso imediato →

@@ -13,6 +13,7 @@ import FAQSection from './components/FAQSection'
 import FinalCTASection from './components/FinalCTASection'
 import Footer from './components/Footer'
 import WhatsAppButton from './components/WhatsAppButton'
+import PurchaseNotifications from './components/PurchaseNotifications'
 
 export default function App() {
     return (
@@ -33,6 +34,7 @@ export default function App() {
                 <FinalCTASection />
             </main>
             <Footer />
+            <PurchaseNotifications />
             <WhatsAppButton />
         </>
     )

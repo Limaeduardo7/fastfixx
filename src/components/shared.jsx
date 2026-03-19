@@ -22,7 +22,19 @@ export function Icon({ name, className = '' }) {
     );
 }
 
-const HOTMART_URL = "https://pay.hotmart.com/R103290726F?sck=HOTMART_PRODUCT_PAGE&off=m6oz9c5d&hotfeature=32&bid=1772048437290";
+export function scrollToOffer() {
+    const target = document.getElementById('pricing-anchor');
+
+    if (!target) return;
+
+    const offset = 96;
+    const targetTop = target.getBoundingClientRect().top + window.scrollY - offset;
+
+    window.scrollTo({
+        top: Math.max(targetTop, 0),
+        behavior: 'smooth',
+    });
+}
 
 export function CTAButton({ children, className = '', variant = 'primary' }) {
     const baseClasses = variant === 'primary'
@@ -31,7 +43,8 @@ export function CTAButton({ children, className = '', variant = 'primary' }) {
 
     return (
         <button
-            onClick={() => window.open(HOTMART_URL, '_blank')}
+            type="button"
+            onClick={scrollToOffer}
             className={`${baseClasses} ${className}`}
         >
             {children}

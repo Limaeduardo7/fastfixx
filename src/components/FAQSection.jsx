@@ -4,7 +4,7 @@ import { Reveal } from './ScrollReveal';
 const faqs = [
     { q: 'Preciso ter experiência para fazer o curso?', a: 'Sim, precisa ter. O curso foi desenvolvido para quem já trabalha com aparelhos, mas está com dificuldades em análise de aparelhos que não ligam e queira aprender sobre reparos avançados em CPUs.' },
     { q: 'Por quanto tempo tenho acesso ao curso?', a: 'O acesso é vitalício. Pode assistir quando quiser, quantas vezes quiser, no seu ritmo. E todas as atualizações futuras estão inclusas. sem pagar nada a mais.' },
-    { q: 'R$ 497 é muito pra mim agora. Vale a pena?', a: 'Um único reparo de placa rende entre R$ 300 e R$ 800. Ou seja, o primeiro conserto que você fizer já paga o curso inteiro. e sobra. É o investimento com retorno mais rápido que você vai fazer na carreira. E ainda pode parcelar em até 12x de R$ 49,60.' },
+    { q: 'R$ 347 é muito pra mim agora. Vale a pena?', a: 'Um único reparo de placa rende entre R$ 300 e R$ 800. Ou seja, o primeiro conserto que você fizer já paga o curso inteiro. e sobra. É o investimento com retorno mais rápido que você vai fazer na carreira. E ainda pode parcelar em até 12x de R$ 28,92.' },
     { q: 'Posso pagar no Pix ou boleto?', a: 'Sim! Aceitamos Pix, boleto bancário e cartão de crédito em até 12x. O acesso pelo Pix e cartão é imediato. Pelo boleto, após a compensação (1-3 dias úteis).' },
     { q: 'E se eu não gostar do curso?', a: 'Sem problema! Você tem 7 dias de garantia incondicional. Se não ficar satisfeito por qualquer motivo, devolvemos 100% do seu dinheiro. Um e-mail e pronto. Sem burocracia.' },
     { q: 'Tem certificado?', a: 'Sim! Ao concluir todos os módulos, você recebe um certificado digital de conclusão que pode adicionar ao currículo ou perfil profissional.' },

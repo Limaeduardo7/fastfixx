@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Reveal } from './ScrollReveal';
-import { Icon } from './shared';
-
-const HOTMART_URL = "https://pay.hotmart.com/R103290726F?sck=HOTMART_PRODUCT_PAGE&off=m6oz9c5d&hotfeature=32&bid=1772048437290";
+import { Icon, scrollToOffer } from './shared';
 
 export default function UrgencyBar() {
     const [minutes, setMinutes] = useState('15');
@@ -50,9 +48,9 @@ export default function UrgencyBar() {
                     <span className="animate-pulse">:</span>
                     <span className="bg-white/20 px-2 py-0.5 rounded font-extrabold">{seconds}</span>
                 </div>
-                <span className="hidden sm:inline">Depois volta para <s>R$ 497,00</s></span>
                 <button
-                    onClick={() => window.open(HOTMART_URL, '_blank')}
+                    type="button"
+                    onClick={scrollToOffer}
                     className="ml-2 bg-white text-red-700 font-extrabold px-4 py-1 rounded-full text-xs hover:scale-105 transition-transform cursor-pointer"
                 >
                     GARANTIR AGORA

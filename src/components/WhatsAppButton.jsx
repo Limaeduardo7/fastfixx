@@ -9,6 +9,7 @@ export default function WhatsAppButton() {
             rel="noopener noreferrer"
             title="Falar com o suporte no WhatsApp"
         >
+            <span className="whatsapp-bubble">Fale comigo agora</span>
             <Icon name="messageCircle" />
         </a>
     );

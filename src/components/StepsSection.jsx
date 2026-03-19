@@ -2,11 +2,31 @@ import { Reveal } from './ScrollReveal';
 import { CTAButton } from './shared';
 
 const steps = [
-    { num: '1', title: 'Insumos', desc: 'Insumos' },
-    { num: '2', title: 'Leitura de consumo e falhas de boot', desc: 'Leitura de consumo e falhas de boot' },
-    { num: '3', title: 'Micro soldagem cpu e memoria', desc: 'Micro soldagem cpu e memoria' },
-    { num: '4', title: 'Reparos completos microsoldagem e software', desc: 'Reparos completos microsoldagem e software' },
-    { num: '5', title: 'Flash 64', desc: 'Flash 64' },
+    {
+        num: '1',
+        title: 'Insumos',
+        desc: 'Aprenda quais insumos realmente importam na bancada, como escolher materiais de qualidade e evitar desperdícios que derrubam sua margem no reparo.'
+    },
+    {
+        num: '2',
+        title: 'Leitura de consumo e falhas de boot',
+        desc: 'Entenda a leitura de consumo na prática para identificar curtos, travamentos de inicialização e falhas de boot com muito mais precisão e velocidade.'
+    },
+    {
+        num: '3',
+        title: 'Micro soldagem cpu e memoria',
+        desc: 'Domine técnicas de micro soldagem em CPU e memória com foco em segurança térmica, precisão de execução e redução de riscos em placas sensíveis.'
+    },
+    {
+        num: '4',
+        title: 'Reparos completos microsoldagem e software',
+        desc: 'Integre diagnóstico de hardware e software para fechar reparos completos, resolver casos complexos e aumentar seu índice de sucesso na bancada.'
+    },
+    {
+        num: '5',
+        title: 'Flash 64',
+        desc: 'Aprenda o processo de Flash 64 passo a passo para recuperação de aparelhos, correção de falhas críticas e finalização profissional do serviço.'
+    },
 ];
 
 export default function StepsSection() {
@@ -15,7 +35,7 @@ export default function StepsSection() {
             <div className="max-w-7xl mx-auto">
                 <Reveal className="text-center mb-20">
                     <h2 className="text-3xl lg:text-5xl font-extrabold mb-4">
-                        Em 4 módulos, você aprende a resolver placas com <span className="text-orange-600">consumo travado</span>
+                        Em 5 módulos, você aprende a resolver placas com <span className="text-orange-600">consumo travado</span>
                     </h2>
                     <p className="text-gray-500 text-lg max-w-2xl mx-auto">
                         Um treinamento desenhado para quem já tem noção básica de bancada e quer dominar diagnósticos avançados de forma prática e direta.

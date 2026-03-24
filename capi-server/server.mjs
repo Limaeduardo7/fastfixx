@@ -28,6 +28,8 @@ if (!PIXEL_ID || !ACCESS_TOKEN) {
 }
 
 const scheduledJobs = new Map();
+const processedHotmartEvents = new Map();
+let lastHotmartWebhook = null;
 
 function sha256(value) {
   if (!value) return undefined;
@@ -352,6 +354,45 @@ async function sendMetaEvent({
   return fbData;
 }
 
+function parseEventTime(value) {
+  if (value === undefined || value === null || value === '') return undefined;
+
+  if (typeof value === 'number') {
+    // Se vier em milissegundos
+    if (value > 1e12) return Math.floor(value / 1000);
+    // Se vier em segundos unix
+    if (value > 1e9) return Math.floor(value);
+  }
+
+  const str = String(value).trim();
+  if (!str) return undefined;
+
+  // Numérico em string
+  if (/^\d+$/.test(str)) {
+    const num = Number(str);
+    if (num > 1e12) return Math.floor(num / 1000);
+    if (num > 1e9) return Math.floor(num);
+  }
+
+  const parsed = Date.parse(str);
+  if (!Number.isNaN(parsed)) return Math.floor(parsed / 1000);
+  return undefined;
+}
+
+function normalizeCurrencyValue(raw) {
+  const num = Number(raw);
+  if (!Number.isFinite(num) || num <= 0) return 0;
+
+  // Hotmart costuma enviar em unidades monetárias (347.00),
+  // mas alguns payloads podem vir em centavos (34700).
+  // Heurística conservadora para ticket baixo/médio de infoproduto.
+  if (Number.isInteger(num) && num >= 1000) {
+    return Number((num / 100).toFixed(2));
+  }
+
+  return Number(num.toFixed(2));
+}
+
 function parseHotmartPayload(payload = {}) {
   const data = payload.data || payload;
   const buyer = data.buyer || data.buyer_info || payload.buyer || {};
@@ -375,16 +416,28 @@ function parseHotmartPayload(payload = {}) {
   }
 
   const valueRaw = purchase.price?.value || purchase.value || transaction.value || data.price || payload.price || 0;
-  const value = Number(valueRaw) || 0;
+  const value = normalizeCurrencyValue(valueRaw);
   const currency = purchase.price?.currency_code || purchase.currency || data.currency || payload.currency || 'BRL';
   const baseId = String(transaction.id || purchase.order_id || purchase.transaction || data.id || payload.id || crypto.randomUUID());
   const tracking = extractTracking(payload);
+  const eventTime =
+    parseEventTime(data.event_date) ||
+    parseEventTime(data.purchase_date) ||
+    parseEventTime(transaction.date_approved) ||
+    parseEventTime(transaction.approved_date) ||
+    parseEventTime(transaction.created_at) ||
+    parseEventTime(purchase.approved_date) ||
+    parseEventTime(purchase.created_at) ||
+    parseEventTime(payload.event_date) ||
+    parseEventTime(payload.created_at);
+
   const eventId = `${baseId}_${mappedEvent || 'unknown'}`;
 
   return {
     mappedEvent,
     statusRaw,
     eventId,
+    eventTime,
     value,
     currency,
     orderId: purchase.order_id || transaction.id,
@@ -399,6 +452,19 @@ function validateHotmartToken(req) {
   if (!HOTMART_WEBHOOK_TOKEN) return false;
   const token = req.headers['x-hotmart-hottok'] || req.headers['hottok'] || req.query?.hottok || req.body?.hottok || req.body?.token;
   return String(token || '') === String(HOTMART_WEBHOOK_TOKEN);
+}
+
+function isDuplicateHotmartEvent(eventId) {
+  const now = Date.now();
+  const ttlMs = 72 * 60 * 60 * 1000; // 72h
+
+  for (const [id, ts] of processedHotmartEvents.entries()) {
+    if (now - ts > ttlMs) processedHotmartEvents.delete(id);
+  }
+
+  if (processedHotmartEvents.has(eventId)) return true;
+  processedHotmartEvents.set(eventId, now);
+  return false;
 }
 
 app.get('/health', (_req, res) => {
@@ -420,6 +486,10 @@ app.get('/api/events/recent', async (req, res) => {
 app.get('/api/automation/jobs', async (_req, res) => {
   const jobs = Array.from(scheduledJobs.values()).map((j) => ({ ...j, timeoutId: undefined }));
   return res.json({ ok: true, count: jobs.length, jobs });
+});
+
+app.get('/api/hotmart/last', async (_req, res) => {
+  return res.json({ ok: true, last: lastHotmartWebhook });
 });
 
 app.post('/api/automation/lead-magnet', async (req, res) => {
@@ -474,36 +544,57 @@ app.post('/api/automation/waitlist', async (req, res) => {
   return res.json({ ok: true, jobs: jobs.map((j) => ({ ...j, timeoutId: undefined })) });
 });
 
-app.post('/api/automation/checkout-abandon', async (req, res) => {
-  const { phone, name = 'Tudo bem?', lead_id } = req.body || {};
-  if (!phone || !lead_id) return res.status(400).json({ ok: false, error: 'phone e lead_id são obrigatórios' });
+function scheduleCheckoutAbandonFlow({ phone, name = 'Tudo bem?', leadId, source = 'manual' }) {
+  const canceled = cancelLeadAutomations(leadId);
 
   const jobs = [
     scheduleAutomation({
-      leadId: lead_id,
+      leadId,
       flow: 'checkout_abandon',
       step: '15m',
       phone,
       delayMs: 15 * 60 * 1000,
       text: `Oi ${name}, vi que você quase concluiu sua inscrição na FastFix.\nSe travou em algo (pagamento, acesso, dúvida), me chama que resolvo agora 👍`,
+      meta: { source },
     }),
     scheduleAutomation({
-      leadId: lead_id,
+      leadId,
       flow: 'checkout_abandon',
       step: '2h',
       phone,
       delayMs: 2 * 60 * 60 * 1000,
       text: `Passando para te lembrar da sua vaga na FastFix 🚀\nQuer que eu te envie o link direto para finalizar?`,
+      meta: { source },
     }),
     scheduleAutomation({
-      leadId: lead_id,
+      leadId,
       flow: 'checkout_abandon',
       step: '24h',
       phone,
       delayMs: 24 * 60 * 60 * 1000,
       text: `Último aviso por aqui: sua condição especial pode encerrar em breve ⏳\nSe quiser garantir agora, eu te mando o link em 1 clique.`,
+      meta: { source },
     }),
   ];
+
+  appendEventLog({
+    ts: new Date().toISOString(),
+    source: 'automation',
+    action: 'checkout_abandon_scheduled',
+    leadId,
+    phone: normalizePhone(phone),
+    canceled_previous_jobs: canceled,
+    jobs: jobs.map((j) => ({ id: j.id, step: j.step, executeAt: j.executeAt })),
+  }).catch(() => {});
+
+  return jobs;
+}
+
+app.post('/api/automation/checkout-abandon', async (req, res) => {
+  const { phone, name = 'Tudo bem?', lead_id } = req.body || {};
+  if (!phone || !lead_id) return res.status(400).json({ ok: false, error: 'phone e lead_id são obrigatórios' });
+
+  const jobs = scheduleCheckoutAbandonFlow({ phone, name, leadId: lead_id, source: 'manual_api' });
 
   return res.json({ ok: true, jobs: jobs.map((j) => ({ ...j, timeoutId: undefined })) });
 });
@@ -610,16 +701,38 @@ app.post('/api/hotmart/webhook', async (req, res) => {
     const { ip, ua } = getClientMeta(req);
     const parsed = parseHotmartPayload(req.body || {});
 
+    lastHotmartWebhook = {
+      at: new Date().toISOString(),
+      statusRaw: parsed.statusRaw,
+      mappedEvent: parsed.mappedEvent,
+      eventId: parsed.eventId,
+      eventTime: parsed.eventTime,
+      value: parsed.value,
+      currency: parsed.currency,
+      orderId: parsed.orderId,
+      buyer: {
+        email: parsed.buyer?.email,
+        phone: parsed.buyer?.checkout_phone || parsed.buyer?.phone,
+        name: parsed.buyer?.name,
+      },
+      tracking: parsed.tracking,
+    };
+
     if (!parsed.mappedEvent) {
       await appendEventLog({ ts: new Date().toISOString(), source: 'hotmart_webhook', ignored: true, status: parsed.statusRaw });
       return res.json({ ok: true, ignored: true, reason: `status não mapeado: ${parsed.statusRaw}` });
+    }
+
+    if (isDuplicateHotmartEvent(parsed.eventId)) {
+      await appendEventLog({ ts: new Date().toISOString(), source: 'hotmart_webhook', ignored: true, reason: 'duplicate_event_id', event_id: parsed.eventId });
+      return res.json({ ok: true, ignored: true, reason: 'duplicate_event_id', eventId: parsed.eventId });
     }
 
     const externalId = pickFirst(parsed.tracking.external_id, parsed.orderId);
 
     const fbData = await sendMetaEvent({
       event_name: parsed.mappedEvent,
-      event_time: Math.floor(Date.now() / 1000),
+      event_time: parsed.eventTime || Math.floor(Date.now() / 1000),
       event_id: parsed.eventId,
       action_source: 'website',
       custom_data: {
@@ -644,6 +757,39 @@ app.post('/api/hotmart/webhook', async (req, res) => {
     if (parsed.mappedEvent === 'Purchase') {
       const canceled = cancelLeadAutomations(externalId);
       await appendEventLog({ ts: new Date().toISOString(), source: 'automation', action: 'cancel_on_purchase', leadId: externalId, canceled });
+    }
+
+    if (parsed.mappedEvent === 'AddPaymentInfo') {
+      const phone = parsed.buyer.checkout_phone || parsed.buyer.phone;
+      const name = parsed.buyer.name ? String(parsed.buyer.name).split(' ')[0] : 'Tudo bem?';
+
+      if (phone && externalId) {
+        const jobs = scheduleCheckoutAbandonFlow({
+          phone,
+          name,
+          leadId: externalId,
+          source: 'hotmart_add_payment_info',
+        });
+
+        await appendEventLog({
+          ts: new Date().toISOString(),
+          source: 'automation',
+          action: 'scheduled_from_hotmart',
+          leadId: externalId,
+          orderId: parsed.orderId,
+          jobs: jobs.map((j) => ({ id: j.id, step: j.step, executeAt: j.executeAt })),
+        });
+      } else {
+        await appendEventLog({
+          ts: new Date().toISOString(),
+          source: 'automation',
+          action: 'hotmart_add_payment_info_without_phone_or_lead',
+          leadId: externalId,
+          orderId: parsed.orderId,
+          hasPhone: Boolean(phone),
+          hasLeadId: Boolean(externalId),
+        });
+      }
     }
 
     await appendEventLog({

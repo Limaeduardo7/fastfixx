@@ -17,6 +17,7 @@
   "dependencies": {
     "@tailwindcss/vite": "^4.1.18",
     "@vitejs/plugin-react": "^5.1.4",
+    "capi-param-builder-nodejs": "^1.0.6",
     "express": "^4.21.2",
     "lucide-react": "^1.7.0",
     "motion": "^12.35.0",

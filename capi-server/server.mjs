@@ -3,6 +3,10 @@ import crypto from 'crypto';
 import fs from 'fs/promises';
 import path from 'path';
 import net from 'net';
+import { createRequire } from 'module';
+
+const require = createRequire(import.meta.url);
+const { ParamBuilder } = require('capi-param-builder-nodejs');
 
 const app = express();
 app.set('trust proxy', true);
@@ -22,6 +26,11 @@ const EVOLUTION_SEND_PATH = process.env.EVOLUTION_SEND_PATH || '/message/sendTex
 const AUTOMATION_JOBS_PATH = process.env.AUTOMATION_JOBS_PATH || '/root/fastfixx/capi-server/data/automation-jobs.json';
 const AGENT_ENABLED = String(process.env.WHATSAPP_AGENT_ENABLED || 'true') === 'true';
 const AGENT_NAME = process.env.WHATSAPP_AGENT_NAME || 'Assistente FastFix';
+const PARAM_BUILDER_DOMAINS = (process.env.PARAM_BUILDER_DOMAINS || '').split(',').map((d) => d.trim()).filter(Boolean);
+
+function createParamBuilder() {
+  return PARAM_BUILDER_DOMAINS.length ? new ParamBuilder(PARAM_BUILDER_DOMAINS) : new ParamBuilder();
+}
 
 if (!PIXEL_ID || !ACCESS_TOKEN) {
   console.error('Faltando META_PIXEL_ID ou META_ACCESS_TOKEN no ambiente.');
@@ -114,6 +123,86 @@ function getClientMeta(req, bodyUserData = {}, eventName = '') {
 
 function pickFirst(...values) {
   return values.find((v) => v !== undefined && v !== null && String(v).trim() !== '');
+}
+
+function parseCookies(rawCookie = '') {
+  const cookies = {};
+  for (const part of String(rawCookie || '').split(';')) {
+    const [key, ...rest] = part.trim().split('=');
+    if (!key) continue;
+    cookies[key] = decodeURIComponent(rest.join('=') || '');
+  }
+  return cookies;
+}
+
+function applyParamBuilderCookies(res, req, cookiesToSet = []) {
+  if (!Array.isArray(cookiesToSet) || !cookiesToSet.length) return;
+
+  const isSecure = String(req.headers['x-forwarded-proto'] || '').includes('https') || req.secure;
+  for (const cookie of cookiesToSet) {
+    if (!cookie?.name || !cookie?.value) continue;
+
+    const parts = [
+      `${cookie.name}=${encodeURIComponent(cookie.value)}`,
+      'Path=/',
+      `Max-Age=${cookie.maxAge || 90 * 24 * 60 * 60}`,
+      'SameSite=Lax',
+    ];
+
+    if (cookie.domain) parts.push(`Domain=${cookie.domain}`);
+    if (isSecure) parts.push('Secure');
+
+    res.append('Set-Cookie', parts.join('; '));
+  }
+}
+
+function getBuilderContext(req, res) {
+  try {
+    const builder = createParamBuilder();
+    const cookies = parseCookies(req.headers.cookie || '');
+    const cookiesToSet = builder.processRequest(
+      req.headers.host,
+      req.query || {},
+      cookies,
+      req.headers.referer,
+      req.headers['x-forwarded-for'] ?? null,
+      req.socket?.remoteAddress ?? null
+    );
+
+    applyParamBuilderCookies(res, req, cookiesToSet);
+
+    return {
+      fbc: builder.getFbc(),
+      fbp: builder.getFbp(),
+      client_ip_address: builder.getClientIpAddress(),
+    };
+  } catch {
+    return {};
+  }
+}
+
+function normalizeForType(value, type) {
+  if (!value) return undefined;
+  const str = String(value).trim();
+  if (!str) return undefined;
+
+  if (type === 'phone') return normalizePhone(str);
+  if (type === 'email' || type === 'external_id' || type === 'first_name' || type === 'last_name' || type === 'city' || type === 'state') {
+    return str.toLowerCase();
+  }
+
+  return str.toLowerCase();
+}
+
+function hashPII(value, type) {
+  if (!value) return undefined;
+  try {
+    const hashed = createParamBuilder().getNormalizedAndHashedPII(value, type);
+    if (hashed) return hashed;
+  } catch {
+    // fallback abaixo
+  }
+  return sha256(normalizeForType(value, type));
 }
 
 function extractTracking(payload = {}) {
@@ -324,11 +413,11 @@ async function sendMetaEvent({
           client_user_agent: ua,
           fbc: user_data.fbc,
           fbp: user_data.fbp,
-          em: sha256(user_data.email),
-          ph: sha256(normalizePhone(user_data.phone)),
-          fn: sha256(user_data.first_name),
-          ln: sha256(user_data.last_name),
-          external_id: sha256(user_data.external_id),
+          em: hashPII(user_data.email, 'email'),
+          ph: hashPII(user_data.phone, 'phone'),
+          fn: hashPII(user_data.first_name, 'first_name'),
+          ln: hashPII(user_data.last_name, 'last_name'),
+          external_id: hashPII(user_data.external_id, 'external_id'),
         },
       },
     ],
@@ -654,7 +743,15 @@ app.post('/api/meta/events', async (req, res) => {
       user_data = {},
     } = req.body || {};
 
-    const { ip, ua } = getClientMeta(req, user_data, event_name);
+    const builderCtx = getBuilderContext(req, res);
+    const enrichedUserData = {
+      ...user_data,
+      fbc: pickFirst(user_data?.fbc, builderCtx.fbc),
+      fbp: pickFirst(user_data?.fbp, builderCtx.fbp),
+      client_ip_address: pickFirst(user_data?.client_ip_address, builderCtx.client_ip_address),
+    };
+
+    const { ip, ua } = getClientMeta(req, enrichedUserData, event_name);
 
     if (!event_name) {
       return res.status(400).json({ ok: false, error: 'event_name é obrigatório' });
@@ -667,7 +764,7 @@ app.post('/api/meta/events', async (req, res) => {
       event_source_url,
       action_source,
       custom_data,
-      user_data,
+      user_data: enrichedUserData,
       ip,
       ua,
     });
@@ -677,11 +774,11 @@ app.post('/api/meta/events', async (req, res) => {
       source: 'site_capi',
       event_name,
       event_id,
-      has_em: Boolean(user_data?.email),
-      has_ph: Boolean(user_data?.phone),
-      has_fbc: Boolean(user_data?.fbc),
-      has_fbp: Boolean(user_data?.fbp),
-      has_external_id: Boolean(user_data?.external_id),
+      has_em: Boolean(enrichedUserData?.email),
+      has_ph: Boolean(enrichedUserData?.phone),
+      has_fbc: Boolean(enrichedUserData?.fbc),
+      has_fbp: Boolean(enrichedUserData?.fbp),
+      has_external_id: Boolean(enrichedUserData?.external_id),
       has_client_ip_address: Boolean(ip),
       meta: fbData,
     });

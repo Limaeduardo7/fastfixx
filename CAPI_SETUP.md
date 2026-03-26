@@ -16,6 +16,7 @@ META_PIXEL_ID=SEU_PIXEL_ID
 META_ACCESS_TOKEN=SEU_TOKEN_DE_ACESSO
 META_TEST_EVENT_CODE=TEST12345   # opcional para teste
 HOTMART_WEBHOOK_TOKEN=SEU_HOTTOK_WEBHOOK
+PARAM_BUILDER_DOMAINS=fastfixacademy.com,www.fastfixacademy.com
 PORT=3100
 ```
 
@@ -81,7 +82,12 @@ Exemplo:
 
 ## 5) Payload CAPI (InitiateCheckout)
 
-O backend agora envia `user_data.client_ip_address` com IP válido (IPv4/IPv6) priorizando o valor vindo da interação do cliente em `InitiateCheckout`, com fallback para `X-Forwarded-For` / socket remoto.
+O backend agora usa **Meta Parameter Builder (NodeJS)** para:
+- gerar/reaproveitar cookies first-party `_fbc` e `_fbp`;
+- selecionar melhor `client_ip_address` disponível;
+- normalizar/hash de PII no padrão recomendado pela Meta.
+
+Também envia `user_data.client_ip_address` com IP válido (IPv4/IPv6) priorizando o valor vindo da interação do cliente em `InitiateCheckout`, com fallback para `X-Forwarded-For` / socket remoto.
 
 Estrutura esperada:
 

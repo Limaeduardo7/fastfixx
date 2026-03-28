@@ -23,3 +23,9 @@
   for = "/images/*"
   [headers.values]
     Cache-Control = "public, max-age=86400, stale-while-revalidate=604800"
+
+# SPA fallback for ebook page
+[[redirects]]
+  from = "/ebook"
+  to = "/ebook/index.html"
+  status = 200

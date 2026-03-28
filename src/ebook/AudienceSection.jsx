@@ -64,8 +64,8 @@ export default function AudienceSection() {
         <div className="grid lg:grid-cols-2 gap-12 relative">
           {/* Positive side */}
           <Reveal>
-            <Card className="gradient-border h-full">
-              <CardContent className="p-8">
+            <div className="gradient-border h-full rounded-2xl" style={{ background: 'rgba(16,24,40,0.8)' }}>
+              <div className="p-8">
                 <Badge variant="success" className="mb-6">Para quem é</Badge>
                 <h3 className="text-2xl font-bold text-white mb-8">
                   Este eBook foi feito para você se...
@@ -81,8 +81,8 @@ export default function AudienceSection() {
                     </div>
                   ))}
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </Reveal>
 
           {/* Bridging gradient line */}

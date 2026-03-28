@@ -58,6 +58,16 @@ export default function OfferSection() {
                   <p className="text-gray-300">
                     eBook técnico e objetivo para dominar a Flash64 de verdade.
                   </p>
+
+                  {/* eBook mockup image */}
+                  <div className="flex justify-center py-2">
+                    <img
+                      src="/images/ebook-mockup.png"
+                      alt="eBook Flash64 Na Prática"
+                      className="w-48 md:w-56 drop-shadow-2xl"
+                      style={{ filter: 'drop-shadow(0 0 24px rgba(255,107,0,0.3)) drop-shadow(0 0 48px rgba(139,92,246,0.15))' }}
+                    />
+                  </div>
                 </div>
 
                 <ul className="space-y-3">
@@ -74,8 +84,8 @@ export default function OfferSection() {
                   <div className="space-y-2">
                     <p className="text-gray-500 line-through text-lg">De R$ 97,00</p>
                     <p className="text-gray-300">Por apenas</p>
-                    <p className="text-5xl font-extrabold text-gradient-fire">R$ XX,XX</p>
-                    <p className="text-gray-400 text-sm">ou consulte condições especiais</p>
+                    <p className="text-5xl font-extrabold text-gradient-fire">R$ 47,00</p>
+                    <p className="text-gray-400 text-sm">Acesso imediato após o pagamento</p>
                   </div>
 
                   <a href={CHECKOUT_URL} className="block">

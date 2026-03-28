@@ -2,7 +2,6 @@ import { Zap, ArrowDown, Check, FileText, BookOpen, Target } from 'lucide-react'
 import { Reveal } from '../components/ScrollReveal';
 import { Badge } from '../components/ui/badge';
 import DecryptedText from '../components/reactbits/DecryptedText';
-import EbookMockup from './EbookMockup';
 
 const CHECKOUT_URL = '#checkout'; // Replace with actual checkout URL
 
@@ -216,7 +215,12 @@ export default function EbookHero() {
           </div>
 
           <div className="hero-image-wrapper relative">
-            <EbookMockup />
+            <img
+              src="/images/ebook-mockup.png"
+              alt="eBook Flash64 Na Prática - Mockup"
+              className="w-full max-w-[420px] drop-shadow-2xl"
+              style={{ filter: 'drop-shadow(0 0 40px rgba(255,107,0,0.25)) drop-shadow(0 0 80px rgba(139,92,246,0.15))' }}
+            />
           </div>
         </Reveal>
       </div>

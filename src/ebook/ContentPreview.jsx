@@ -1,114 +1,36 @@
 import { Reveal } from '../components/ScrollReveal';
 import { Badge } from '../components/ui/badge';
 
-function ParamBlock({ label, color, lines }) {
-  return (
-    <div className="w-full rounded-sm p-2" style={{ borderLeft: `2px solid ${color}`, background: `${color}08` }}>
-      <div className="text-[6px] font-bold mb-1" style={{ color, fontFamily: 'monospace' }}>{label}</div>
-      {lines.map((line, i) => (
-        <div key={i} className="text-[5px] text-white/50 leading-[1.6]">{line}</div>
-      ))}
-    </div>
-  );
-}
-
-function PageUFS() {
-  return (
-    <div className="relative bg-[#0d1117] border border-white/10 rounded-lg overflow-hidden w-[200px] sm:w-[220px] shrink-0"
-      style={{ aspectRatio: '3/4', boxShadow: '0 0 40px #3B82F615, 0 0 80px #3B82F608', transform: 'rotate(-6deg)', zIndex: 5 }}>
-      <div className="p-3.5 flex flex-col gap-1.5 h-full">
-        <div className="text-[6px] uppercase tracking-[0.2em] text-gray-500">DOMINANDO A FLASH64</div>
-        <div className="h-[1px] bg-white/10 w-full" />
-        <div className="text-[8px] font-bold text-white mt-0.5">Parâmetros UFS (continuação)</div>
-        <div className="h-[1.5px] w-8 rounded-full bg-[#3B82F6] mb-1" />
-        <ParamBlock label="GEAR (Velocidade de comunicação)" color="#06B6D4"
-          lines={['G1 (mais lento) > G2 > G3 > G4 (mais rápido)', 'GEAR baixo = mais estável, menor velocidade', 'Recomendação: AUTO para ajuste automático.']} />
-        <ParamBlock label="RATE (Modo de transmissão)" color="#FF6B00"
-          lines={['PWM (modo básico, mais lento) | HS (High Speed)', 'HS: equilíbrio | A-series: maior desempenho']} />
-        <ParamBlock label="R.CLOCK (Frequência de comunicação)" color="#10B981"
-          lines={['Valores: 19 MHz | 26 MHz | 52 MHz', 'Clock baixo = mais estável | Clock alto = mais rápido', 'Recomendação: 26 MHz como padrão.']} />
-        <ParamBlock label="TX_N (Resistência da Linha de Transmissão)" color="#EAB308"
-          lines={['Valores: 5 a 22 Ohm | Baixo (5-10): sinal rápido', 'Comece com 10 Ohm. Não conecta? Aumente.']} />
-        <div className="mt-auto rounded-sm p-2 bg-[#3B82F6]/10 border border-[#3B82F6]/20">
-          <div className="text-[4.5px] text-[#3B82F6]/80 leading-[1.5]">O TX_N é um ajuste fino. A <span className="font-bold text-[#3B82F6]">qualidade dos fios, solda e conexão ISP</span> tem impacto maior que esse parâmetro.</div>
-        </div>
-        <div className="text-[5px] text-center text-gray-600 mt-auto">Página 9</div>
-      </div>
-    </div>
-  );
-}
-
-function PageChipOff() {
-  const steps = [
-    { label: 'Pré-aquecimento', color: '#06B6D4', text: '250°C por 40s a 1 min — chip e área ao redor' },
-    { label: 'Extração', color: '#FF6B00', text: 'Aumentar temperatura — não ultrapassar ~40 segundos' },
-    { label: 'Limpeza', color: '#10B981', text: 'Ferro a 330°C máx (resina) + malha dessoldadora + thinner Farben 5000/6000' },
-    { label: 'Reballing', color: '#EAB308', text: 'Solda de fusão 153°C ou 183°C — evitar 138°C e 217°C' },
-  ];
-  return (
-    <div className="relative bg-[#0d1117] border border-white/10 rounded-lg overflow-hidden w-[200px] sm:w-[220px] shrink-0"
-      style={{ aspectRatio: '3/4', boxShadow: '0 0 40px #10B98115, 0 0 80px #10B98108', zIndex: 10 }}>
-      <div className="p-3.5 flex flex-col gap-1.5 h-full">
-        <div className="text-[6px] uppercase tracking-[0.2em] text-gray-500">DOMINANDO A FLASH64</div>
-        <div className="h-[1px] bg-white/10 w-full" />
-        <div className="text-[7px] font-bold text-[#10B981]">05</div>
-        <div className="text-[9px] font-bold text-white">Chip Off</div>
-        <div className="h-[1.5px] w-8 rounded-full bg-[#10B981] mb-0.5" />
-        <div className="text-[5px] text-white/50 leading-[1.6]">Esse tipo de conexão só é válido a partir do momento em que já foi realizado o procedimento de reballing da CPU e você deseja reprogramar a memória do zero.</div>
-        <div className="text-[6px] font-semibold text-white/70 mt-1">Procedimento padrão (Samsung/SEC):</div>
-        {steps.map((s, i) => (
-          <div key={i} className="rounded-sm p-1.5" style={{ borderLeft: `2px solid ${s.color}`, background: `${s.color}08` }}>
-            <div className="text-[5.5px] font-bold mb-0.5" style={{ color: s.color }}>{s.label}</div>
-            <div className="text-[5px] text-white/50">{s.text}</div>
-          </div>
-        ))}
-        <div className="mt-auto rounded-sm p-1.5 bg-[#FF6B00]/10 border border-[#FF6B00]/20">
-          <div className="text-[4.5px] text-white/60 leading-[1.5]"><span className="font-bold text-white/80">A memória deve ser manuseada com total cuidado</span>, evitando tocar nos pads — pode gerar antiestática e danificar algum bloco interno.</div>
-        </div>
-        <div className="text-[5px] text-center text-gray-600 mt-1">Página 6</div>
-      </div>
-    </div>
-  );
-}
-
-function PageEMMC() {
-  const params = [
-    { label: 'VCC', color: '#06B6D4', text: '2.8V — tensão principal, alimenta o chip e permite inicialização' },
-    { label: 'VCCQ', color: '#10B981', text: '1.8V (aparelhos atuais) / 3.3V (modelos antigos) — nível lógico da comunicação' },
-    { label: 'CLOCK', color: '#FF6B00', text: '26 MHz | 52 MHz | 104 MHz — Clock baixo: mais estável | Clock alto: mais rápido. Recomendação: 104 MHz estável.' },
-  ];
-  const modes = ['AI Connect', 'Reconnection Loop', 'ISP Mode', 'Boot Mode', 'SPR', 'CLK Booster', 'Slow Read/Write'];
-  return (
-    <div className="relative bg-[#0d1117] border border-white/10 rounded-lg overflow-hidden w-[200px] sm:w-[220px] shrink-0"
-      style={{ aspectRatio: '3/4', boxShadow: '0 0 40px #06B6D415, 0 0 80px #06B6D408', transform: 'rotate(6deg)', zIndex: 5 }}>
-      <div className="p-3.5 flex flex-col gap-1.5 h-full">
-        <div className="text-[6px] uppercase tracking-[0.2em] text-gray-500">DOMINANDO A FLASH64</div>
-        <div className="h-[1px] bg-white/10 w-full" />
-        <div className="text-[7px] font-bold text-[#06B6D4]">09</div>
-        <div className="text-[9px] font-bold text-white">Aba eMMC da Flash64</div>
-        <div className="h-[1.5px] w-8 rounded-full bg-[#06B6D4] mb-0.5" />
-        <div className="text-[5px] text-white/50 leading-[1.6]">A aba eMMC é utilizada para comunicação com memórias eMMC, permitindo leitura, escrita e diagnóstico através de conexão direta ou via ISP.</div>
-        <div className="text-[6px] font-semibold text-white/70 mt-0.5">Parâmetros principais:</div>
-        {params.map((p, i) => (
-          <div key={i} className="rounded-sm p-1.5" style={{ borderLeft: `2px solid ${p.color}`, background: `${p.color}08` }}>
-            <div className="text-[5.5px] font-bold mb-0.5" style={{ color: p.color }}>{p.label}</div>
-            <div className="text-[4.5px] text-white/50 leading-[1.5]">{p.text}</div>
-          </div>
-        ))}
-        <div className="text-[6px] font-semibold text-white/70 mt-0.5">Modos de operação:</div>
-        <div className="flex flex-col gap-1">
-          {modes.map((m, i) => (
-            <div key={i} className="flex items-center gap-1.5">
-              <div className="w-1 h-1 rounded-sm bg-[#06B6D4]/60 shrink-0" />
-              <div className="text-[4.5px] text-white/40">{m}</div>
-            </div>
-          ))}
-        </div>
-        <div className="text-[5px] text-center text-gray-600 mt-auto">Página 11</div>
-      </div>
-    </div>
-  );
-}
+const pages = [
+  {
+    src: '/images/preview-ufs.png',
+    alt: 'Parâmetros UFS - página 9',
+    label: 'Parâmetros UFS · p.9',
+    color: '#3B82F6',
+    rotation: -6,
+    zIndex: 5,
+    shadow: 'rgba(59,130,246,0.2)',
+  },
+  {
+    src: '/images/preview-chipoff.png',
+    alt: 'Chip Off - página 6',
+    label: 'Chip Off · p.6',
+    color: '#FF6B00',
+    rotation: 0,
+    zIndex: 10,
+    shadow: 'rgba(255,107,0,0.25)',
+    badge: true,
+  },
+  {
+    src: '/images/preview-emmc.png',
+    alt: 'Aba eMMC da Flash64 - página 11',
+    label: 'Aba eMMC · p.11',
+    color: '#06B6D4',
+    rotation: 6,
+    zIndex: 5,
+    shadow: 'rgba(6,182,212,0.2)',
+  },
+];
 
 export default function ContentPreview() {
   return (
@@ -130,26 +52,51 @@ export default function ContentPreview() {
         </Reveal>
 
         <Reveal delay={200}>
-          <div className="relative flex items-center justify-center gap-4 sm:gap-0 flex-wrap sm:flex-nowrap h-auto sm:h-[400px] py-8 sm:py-0">
-            {/* Page left - UFS Params */}
-            <div className="sm:absolute" style={{ left: 'calc(50% - 270px)' }}>
-              <PageUFS />
-            </div>
-
-            {/* Page center - Chip Off (main) */}
-            <div className="relative sm:absolute" style={{ zIndex: 10 }}>
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-20">
-                <span className="inline-block px-3 py-1 rounded-full bg-primary/90 text-white text-[10px] font-bold uppercase tracking-wider shadow-lg shadow-primary/30">
-                  Preview Real
-                </span>
+          {/* Fan-out layout */}
+          <div className="relative flex items-center justify-center h-[340px] sm:h-[420px]">
+            {pages.map((page, i) => (
+              <div
+                key={i}
+                className={i === 1 ? 'relative' : 'absolute hidden sm:block'}
+                style={
+                  i === 0
+                    ? { left: 'calc(50% - 280px)' }
+                    : i === 2
+                    ? { right: 'calc(50% - 280px)' }
+                    : {}
+                }
+              >
+                {page.badge && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-20">
+                    <span className="inline-block px-3 py-1 rounded-full bg-primary/90 text-white text-[10px] font-bold uppercase tracking-wider shadow-lg shadow-primary/30">
+                      Preview Real
+                    </span>
+                  </div>
+                )}
+                <div
+                  className="relative overflow-hidden rounded-lg border border-white/10 w-[180px] sm:w-[210px]"
+                  style={{
+                    transform: `rotate(${page.rotation}deg)`,
+                    zIndex: page.zIndex,
+                    boxShadow: `0 8px 40px ${page.shadow}, 0 0 0 1px rgba(255,255,255,0.05)`,
+                    aspectRatio: '3/4',
+                  }}
+                >
+                  <img
+                    src={page.src}
+                    alt={page.alt}
+                    className="w-full h-full object-cover object-top"
+                  />
+                  {/* Bottom label */}
+                  <div
+                    className="absolute bottom-0 left-0 right-0 px-2 py-1.5 text-[9px] font-semibold text-center"
+                    style={{ background: `linear-gradient(to top, ${page.color}33, transparent)`, color: page.color }}
+                  >
+                    {page.label}
+                  </div>
+                </div>
               </div>
-              <PageChipOff />
-            </div>
-
-            {/* Page right - eMMC */}
-            <div className="sm:absolute" style={{ right: 'calc(50% - 270px)' }}>
-              <PageEMMC />
-            </div>
+            ))}
           </div>
         </Reveal>
 

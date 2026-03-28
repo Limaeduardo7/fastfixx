@@ -1,185 +1,110 @@
 import { Reveal } from '../components/ScrollReveal';
 import { Badge } from '../components/ui/badge';
 
-function TextLine({ width = '100%', className = '' }) {
+function ParamBlock({ label, color, lines }) {
   return (
-    <div
-      className={`h-[6px] rounded-full bg-white/[0.06] ${className}`}
-      style={{ width }}
-    />
-  );
-}
-
-function CodeBlock({ color }) {
-  return (
-    <div className="w-full rounded-md p-2.5 space-y-1.5" style={{ background: `${color}08`, border: `1px solid ${color}15` }}>
-      <div className="flex items-center gap-1.5">
-        <div className="w-1.5 h-1.5 rounded-full" style={{ background: color }} />
-        <div className="h-[4px] rounded-full bg-white/10 w-[60%]" />
-      </div>
-      <div className="flex items-center gap-1.5">
-        <div className="w-1.5 h-1.5 rounded-full bg-cyan-400/60" />
-        <div className="h-[4px] rounded-full bg-white/[0.06] w-[45%]" />
-      </div>
-      <div className="flex items-center gap-1.5">
-        <div className="w-1.5 h-1.5 rounded-full bg-violet-400/60" />
-        <div className="h-[4px] rounded-full bg-white/[0.06] w-[70%]" />
-      </div>
-      <div className="flex items-center gap-1.5">
-        <div className="w-1.5 h-1.5 rounded-full" style={{ background: color }} />
-        <div className="h-[4px] rounded-full bg-white/10 w-[50%]" />
-      </div>
-    </div>
-  );
-}
-
-function Checklist({ color }) {
-  const widths = ['65%', '80%', '55%', '72%'];
-  const dotColors = ['bg-emerald-400', 'bg-emerald-500', 'bg-emerald-300', 'bg-emerald-400'];
-  return (
-    <div className="w-full space-y-2">
-      {widths.map((w, i) => (
-        <div key={i} className="flex items-center gap-2">
-          <div className={`w-2 h-2 rounded-full shrink-0 ${dotColors[i]}`} style={{ opacity: 0.7 }} />
-          <div className="h-[4px] rounded-full bg-white/[0.06]" style={{ width: w }} />
-        </div>
+    <div className="w-full rounded-sm p-2" style={{ borderLeft: `2px solid ${color}`, background: `${color}08` }}>
+      <div className="text-[6px] font-bold mb-1" style={{ color, fontFamily: 'monospace' }}>{label}</div>
+      {lines.map((line, i) => (
+        <div key={i} className="text-[5px] text-white/50 leading-[1.6]">{line}</div>
       ))}
     </div>
   );
 }
 
-function CircuitLines({ color }) {
+function PageUFS() {
   return (
-    <svg viewBox="0 0 120 50" className="w-full h-10 opacity-40" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <line x1="10" y1="25" x2="40" y2="25" stroke={color} strokeWidth="1.5" />
-      <line x1="40" y1="25" x2="40" y2="10" stroke={color} strokeWidth="1.5" />
-      <line x1="40" y1="10" x2="70" y2="10" stroke={color} strokeWidth="1.5" />
-      <line x1="70" y1="10" x2="70" y2="40" stroke={color} strokeWidth="1.5" />
-      <line x1="70" y1="40" x2="110" y2="40" stroke={color} strokeWidth="1.5" />
-      <circle cx="40" cy="25" r="2.5" fill={color} />
-      <circle cx="70" cy="10" r="2.5" fill={color} />
-      <circle cx="70" cy="40" r="2.5" fill={color} />
-      <rect x="85" y="20" width="20" height="10" rx="2" stroke={color} strokeWidth="1" fill={`${color}20`} />
-      <line x1="40" y1="25" x2="85" y2="25" stroke={color} strokeWidth="1" strokeDasharray="3 2" />
-    </svg>
-  );
-}
-
-function MiniTable({ color }) {
-  return (
-    <div className="w-full rounded-md overflow-hidden" style={{ border: `1px solid ${color}20` }}>
-      <div className="flex gap-0" style={{ background: `${color}12` }}>
-        <div className="flex-1 px-2 py-1 border-r" style={{ borderColor: `${color}15` }}>
-          <div className="h-[3px] rounded-full bg-white/20 w-[70%]" />
+    <div className="relative bg-[#0d1117] border border-white/10 rounded-lg overflow-hidden w-[200px] sm:w-[220px] shrink-0"
+      style={{ aspectRatio: '3/4', boxShadow: '0 0 40px #3B82F615, 0 0 80px #3B82F608', transform: 'rotate(-6deg)', zIndex: 5 }}>
+      <div className="p-3.5 flex flex-col gap-1.5 h-full">
+        <div className="text-[6px] uppercase tracking-[0.2em] text-gray-500">DOMINANDO A FLASH64</div>
+        <div className="h-[1px] bg-white/10 w-full" />
+        <div className="text-[8px] font-bold text-white mt-0.5">Parâmetros UFS (continuação)</div>
+        <div className="h-[1.5px] w-8 rounded-full bg-[#3B82F6] mb-1" />
+        <ParamBlock label="GEAR (Velocidade de comunicação)" color="#06B6D4"
+          lines={['G1 (mais lento) > G2 > G3 > G4 (mais rápido)', 'GEAR baixo = mais estável, menor velocidade', 'Recomendação: AUTO para ajuste automático.']} />
+        <ParamBlock label="RATE (Modo de transmissão)" color="#FF6B00"
+          lines={['PWM (modo básico, mais lento) | HS (High Speed)', 'HS: equilíbrio | A-series: maior desempenho']} />
+        <ParamBlock label="R.CLOCK (Frequência de comunicação)" color="#10B981"
+          lines={['Valores: 19 MHz | 26 MHz | 52 MHz', 'Clock baixo = mais estável | Clock alto = mais rápido', 'Recomendação: 26 MHz como padrão.']} />
+        <ParamBlock label="TX_N (Resistência da Linha de Transmissão)" color="#EAB308"
+          lines={['Valores: 5 a 22 Ohm | Baixo (5-10): sinal rápido', 'Comece com 10 Ohm. Não conecta? Aumente.']} />
+        <div className="mt-auto rounded-sm p-2 bg-[#3B82F6]/10 border border-[#3B82F6]/20">
+          <div className="text-[4.5px] text-[#3B82F6]/80 leading-[1.5]">O TX_N é um ajuste fino. A <span className="font-bold text-[#3B82F6]">qualidade dos fios, solda e conexão ISP</span> tem impacto maior que esse parâmetro.</div>
         </div>
-        <div className="flex-1 px-2 py-1">
-          <div className="h-[3px] rounded-full bg-white/20 w-[50%]" />
-        </div>
+        <div className="text-[5px] text-center text-gray-600 mt-auto">Página 9</div>
       </div>
-      {[0, 1].map((row) => (
-        <div key={row} className="flex gap-0 border-t" style={{ borderColor: `${color}10` }}>
-          <div className="flex-1 px-2 py-1 border-r" style={{ borderColor: `${color}10` }}>
-            <div className="h-[3px] rounded-full bg-white/[0.06] w-[60%]" />
-          </div>
-          <div className="flex-1 px-2 py-1">
-            <div className="h-[3px] rounded-full bg-white/[0.06] w-[40%]" />
-          </div>
-        </div>
-      ))}
     </div>
   );
 }
 
-function SimulatedPage({ chapter, title, color = '#FF6B00', rotation = 0, zIndex = 10, className = '', variant = 'main' }) {
+function PageChipOff() {
+  const steps = [
+    { label: 'Pré-aquecimento', color: '#06B6D4', text: '250°C por 40s a 1 min — chip e área ao redor' },
+    { label: 'Extração', color: '#FF6B00', text: 'Aumentar temperatura — não ultrapassar ~40 segundos' },
+    { label: 'Limpeza', color: '#10B981', text: 'Ferro a 330°C máx (resina) + malha dessoldadora + thinner Farben 5000/6000' },
+    { label: 'Reballing', color: '#EAB308', text: 'Solda de fusão 153°C ou 183°C — evitar 138°C e 217°C' },
+  ];
   return (
-    <div
-      className={`relative bg-[#0d1117] border border-white/10 rounded-lg overflow-hidden aspect-[3/4] w-[220px] sm:w-[240px] shrink-0 ${className}`}
-      style={{
-        transform: `rotate(${rotation}deg)`,
-        zIndex,
-        boxShadow: `0 0 40px ${color}15, 0 0 80px ${color}08`,
-      }}
-    >
-      <div className="p-5 flex flex-col gap-3 h-full">
-        {/* Chapter label */}
-        <span className="text-[9px] uppercase tracking-[0.2em] text-gray-500 font-medium">
-          {chapter}
-        </span>
+    <div className="relative bg-[#0d1117] border border-white/10 rounded-lg overflow-hidden w-[200px] sm:w-[220px] shrink-0"
+      style={{ aspectRatio: '3/4', boxShadow: '0 0 40px #10B98115, 0 0 80px #10B98108', zIndex: 10 }}>
+      <div className="p-3.5 flex flex-col gap-1.5 h-full">
+        <div className="text-[6px] uppercase tracking-[0.2em] text-gray-500">DOMINANDO A FLASH64</div>
+        <div className="h-[1px] bg-white/10 w-full" />
+        <div className="text-[7px] font-bold text-[#10B981]">05</div>
+        <div className="text-[9px] font-bold text-white">Chip Off</div>
+        <div className="h-[1.5px] w-8 rounded-full bg-[#10B981] mb-0.5" />
+        <div className="text-[5px] text-white/50 leading-[1.6]">Esse tipo de conexão só é válido a partir do momento em que já foi realizado o procedimento de reballing da CPU e você deseja reprogramar a memória do zero.</div>
+        <div className="text-[6px] font-semibold text-white/70 mt-1">Procedimento padrão (Samsung/SEC):</div>
+        {steps.map((s, i) => (
+          <div key={i} className="rounded-sm p-1.5" style={{ borderLeft: `2px solid ${s.color}`, background: `${s.color}08` }}>
+            <div className="text-[5.5px] font-bold mb-0.5" style={{ color: s.color }}>{s.label}</div>
+            <div className="text-[5px] text-white/50">{s.text}</div>
+          </div>
+        ))}
+        <div className="mt-auto rounded-sm p-1.5 bg-[#FF6B00]/10 border border-[#FF6B00]/20">
+          <div className="text-[4.5px] text-white/60 leading-[1.5]"><span className="font-bold text-white/80">A memória deve ser manuseada com total cuidado</span>, evitando tocar nos pads — pode gerar antiestática e danificar algum bloco interno.</div>
+        </div>
+        <div className="text-[5px] text-center text-gray-600 mt-1">Página 6</div>
+      </div>
+    </div>
+  );
+}
 
-        {/* Title */}
-        <h4 className="text-sm font-bold text-white leading-tight">{title}</h4>
-
-        {/* Divider */}
-        <div className="h-[2px] rounded-full w-10" style={{ background: color }} />
-
-        {variant === 'main' && (
-          <>
-            {/* Simulated text paragraphs - varied widths */}
-            <div className="flex flex-col gap-2 mt-1">
-              <TextLine width="100%" />
-              <TextLine width="70%" />
-              <TextLine width="92%" />
-              <TextLine width="55%" />
+function PageEMMC() {
+  const params = [
+    { label: 'VCC', color: '#06B6D4', text: '2.8V — tensão principal, alimenta o chip e permite inicialização' },
+    { label: 'VCCQ', color: '#10B981', text: '1.8V (aparelhos atuais) / 3.3V (modelos antigos) — nível lógico da comunicação' },
+    { label: 'CLOCK', color: '#FF6B00', text: '26 MHz | 52 MHz | 104 MHz — Clock baixo: mais estável | Clock alto: mais rápido. Recomendação: 104 MHz estável.' },
+  ];
+  const modes = ['AI Connect', 'Reconnection Loop', 'ISP Mode', 'Boot Mode', 'SPR', 'CLK Booster', 'Slow Read/Write'];
+  return (
+    <div className="relative bg-[#0d1117] border border-white/10 rounded-lg overflow-hidden w-[200px] sm:w-[220px] shrink-0"
+      style={{ aspectRatio: '3/4', boxShadow: '0 0 40px #06B6D415, 0 0 80px #06B6D408', transform: 'rotate(6deg)', zIndex: 5 }}>
+      <div className="p-3.5 flex flex-col gap-1.5 h-full">
+        <div className="text-[6px] uppercase tracking-[0.2em] text-gray-500">DOMINANDO A FLASH64</div>
+        <div className="h-[1px] bg-white/10 w-full" />
+        <div className="text-[7px] font-bold text-[#06B6D4]">09</div>
+        <div className="text-[9px] font-bold text-white">Aba eMMC da Flash64</div>
+        <div className="h-[1.5px] w-8 rounded-full bg-[#06B6D4] mb-0.5" />
+        <div className="text-[5px] text-white/50 leading-[1.6]">A aba eMMC é utilizada para comunicação com memórias eMMC, permitindo leitura, escrita e diagnóstico através de conexão direta ou via ISP.</div>
+        <div className="text-[6px] font-semibold text-white/70 mt-0.5">Parâmetros principais:</div>
+        {params.map((p, i) => (
+          <div key={i} className="rounded-sm p-1.5" style={{ borderLeft: `2px solid ${p.color}`, background: `${p.color}08` }}>
+            <div className="text-[5.5px] font-bold mb-0.5" style={{ color: p.color }}>{p.label}</div>
+            <div className="text-[4.5px] text-white/50 leading-[1.5]">{p.text}</div>
+          </div>
+        ))}
+        <div className="text-[6px] font-semibold text-white/70 mt-0.5">Modos de operação:</div>
+        <div className="flex flex-col gap-1">
+          {modes.map((m, i) => (
+            <div key={i} className="flex items-center gap-1.5">
+              <div className="w-1 h-1 rounded-sm bg-[#06B6D4]/60 shrink-0" />
+              <div className="text-[4.5px] text-white/40">{m}</div>
             </div>
-
-            {/* Circuit diagram */}
-            <CircuitLines color={color} />
-
-            {/* Mini table */}
-            <MiniTable color={color} />
-
-            {/* More text lines */}
-            <div className="flex flex-col gap-2 mt-auto">
-              <TextLine width="88%" />
-              <TextLine width="65%" />
-            </div>
-          </>
-        )}
-
-        {variant === 'code' && (
-          <>
-            {/* Text intro */}
-            <div className="flex flex-col gap-2 mt-1">
-              <TextLine width="90%" />
-              <TextLine width="60%" />
-            </div>
-
-            {/* Code block style */}
-            <CodeBlock color={color} />
-
-            {/* More text */}
-            <div className="flex flex-col gap-2 mt-auto">
-              <TextLine width="95%" />
-              <TextLine width="78%" />
-              <TextLine width="88%" />
-            </div>
-          </>
-        )}
-
-        {variant === 'checklist' && (
-          <>
-            {/* Text intro */}
-            <div className="flex flex-col gap-2 mt-1">
-              <TextLine width="85%" />
-              <TextLine width="70%" />
-            </div>
-
-            {/* Checklist */}
-            <Checklist color={color} />
-
-            {/* Simulated diagram / image */}
-            <div
-              className="w-full h-12 rounded-md mt-2"
-              style={{ background: `linear-gradient(135deg, ${color}15, ${color}08)`, border: `1px solid ${color}20` }}
-            />
-
-            {/* More text lines */}
-            <div className="flex flex-col gap-2 mt-auto">
-              <TextLine width="92%" />
-              <TextLine width="68%" />
-            </div>
-          </>
-        )}
+          ))}
+        </div>
+        <div className="text-[5px] text-center text-gray-600 mt-auto">Página 11</div>
       </div>
     </div>
   );
@@ -188,10 +113,7 @@ function SimulatedPage({ chapter, title, color = '#FF6B00', rotation = 0, zIndex
 export default function ContentPreview() {
   return (
     <section className="py-24 px-6 lg:px-20 relative overflow-hidden">
-      {/* Section divider */}
       <div className="section-divider" />
-
-      {/* Glow orb */}
       <div className="ebook-glow-purple absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -z-10" />
 
       <div className="max-w-7xl mx-auto">
@@ -208,56 +130,32 @@ export default function ContentPreview() {
         </Reveal>
 
         <Reveal delay={200}>
-          {/* Fan-out page previews */}
-          <div className="relative flex items-center justify-center h-[380px] sm:h-[420px]">
-            {/* Page 2 - Left */}
-            <div className="absolute hidden sm:block" style={{ left: 'calc(50% - 260px)' }}>
-              <SimulatedPage
-                chapter="Capítulo 05"
-                title="Parâmetros UFS"
-                rotation={-6}
-                zIndex={5}
-                color="#3B82F6"
-                variant="code"
-              />
+          <div className="relative flex items-center justify-center gap-4 sm:gap-0 flex-wrap sm:flex-nowrap h-auto sm:h-[400px] py-8 sm:py-0">
+            {/* Page left - UFS Params */}
+            <div className="sm:absolute" style={{ left: 'calc(50% - 270px)' }}>
+              <PageUFS />
             </div>
 
-            {/* Page 1 - Center (main) */}
-            <div className="relative" style={{ zIndex: 10 }}>
-              {/* Preview badge */}
+            {/* Page center - Chip Off (main) */}
+            <div className="relative sm:absolute" style={{ zIndex: 10 }}>
               <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-20">
                 <span className="inline-block px-3 py-1 rounded-full bg-primary/90 text-white text-[10px] font-bold uppercase tracking-wider shadow-lg shadow-primary/30">
-                  Preview
+                  Preview Real
                 </span>
               </div>
-              <SimulatedPage
-                chapter="Capítulo 03"
-                title="Conexão ISP"
-                rotation={0}
-                zIndex={10}
-                color="#FF6B00"
-                variant="main"
-                className="shadow-2xl shadow-black/40"
-              />
+              <PageChipOff />
             </div>
 
-            {/* Page 3 - Right */}
-            <div className="absolute hidden sm:block" style={{ right: 'calc(50% - 260px)' }}>
-              <SimulatedPage
-                chapter="Capítulo 07"
-                title="Chip Off"
-                rotation={6}
-                zIndex={5}
-                color="#10B981"
-                variant="checklist"
-              />
+            {/* Page right - eMMC */}
+            <div className="sm:absolute" style={{ right: 'calc(50% - 270px)' }}>
+              <PageEMMC />
             </div>
           </div>
         </Reveal>
 
         <Reveal delay={400}>
           <p className="text-gray-500 text-xs text-center mt-8">
-            Conteúdo real do eBook. Visual ilustrativo.
+            Páginas reais do eBook — Chip Off (p.6), Parâmetros UFS (p.9), Aba eMMC (p.11).
           </p>
         </Reveal>
       </div>

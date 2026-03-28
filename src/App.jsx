@@ -65,6 +65,7 @@ export default function App() {
 
     const routes = {
         '/': <HomePage />,
+        '/flash64': <HomePage />,
     }
 
     return routes[path] ?? <NotFoundPage />

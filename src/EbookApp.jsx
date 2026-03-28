@@ -10,11 +10,14 @@ import EbookFAQ from './ebook/EbookFAQ'
 import FinalCTA from './ebook/FinalCTA'
 import EbookFooter from './ebook/EbookFooter'
 import EbookWhatsApp from './ebook/EbookWhatsApp'
+import EbookUrgencyBar from './ebook/EbookUrgencyBar'
+import EbookNotifications from './ebook/EbookNotifications'
 
 export default function EbookApp() {
   return (
     <>
-      <main>
+      <EbookUrgencyBar />
+      <main className="pt-10">
         <EbookHero />
         <PainSection />
         <PromiseSection />
@@ -28,6 +31,7 @@ export default function EbookApp() {
       </main>
       <EbookFooter />
       <EbookWhatsApp />
+      <EbookNotifications />
     </>
   )
 }

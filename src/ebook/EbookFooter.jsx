@@ -9,7 +9,7 @@ export default function EbookFooter() {
 
       <footer className="py-16 px-6 lg:px-20 bg-gradient-to-b from-[#07090D] to-[#050709]">
         <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-3 gap-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
             {/* Column 1 - Brand */}
             <div className="space-y-4">
               <img

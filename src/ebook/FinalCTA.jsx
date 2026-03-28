@@ -11,9 +11,9 @@ export default function FinalCTA() {
       <div className="section-divider mb-24" />
 
       {/* Large glow orbs */}
-      <div className="ebook-glow-orange absolute -top-40 left-1/2 -translate-x-1/2 -z-10 !w-[700px] !h-[700px]" />
-      <div className="ebook-glow-purple absolute top-1/2 -left-64 -translate-y-1/2 -z-10 !w-[600px] !h-[600px]" />
-      <div className="ebook-glow-cyan absolute top-1/2 -right-64 -translate-y-1/2 -z-10 !w-[600px] !h-[600px]" />
+      <div className="ebook-glow-orange absolute -top-40 left-1/2 -translate-x-1/2 -z-10 !w-[min(90vw,700px)] !h-[min(90vw,700px)]" />
+      <div className="hidden sm:block ebook-glow-purple absolute top-1/2 -left-64 -translate-y-1/2 -z-10 !w-[600px] !h-[600px]" />
+      <div className="hidden sm:block ebook-glow-cyan absolute top-1/2 -right-64 -translate-y-1/2 -z-10 !w-[600px] !h-[600px]" />
 
       {/* Floating particles */}
       <div
@@ -35,7 +35,7 @@ export default function FinalCTA() {
 
       <div className="max-w-3xl mx-auto text-center space-y-10">
         <Reveal>
-          <h2 className="text-3xl lg:text-5xl font-extrabold text-white mb-6">
+          <h2 className="text-2xl sm:text-3xl lg:text-5xl font-extrabold text-white mb-4 sm:mb-6">
             Pare de perder <span className="text-gradient-fire">tempo</span> com{' '}
             <span className="text-red-400">tentativa e erro</span>.
           </h2>
@@ -57,7 +57,7 @@ export default function FinalCTA() {
 
         <Reveal delay={300}>
           <a href={CHECKOUT_URL}>
-            <button className="hero-cta bg-gradient-to-r from-primary via-orange-500 to-amber-500 hover:from-orange-500 hover:to-primary text-white text-lg font-bold py-5 px-10 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 mx-auto shadow-lg shadow-primary/30">
+            <button className="hero-cta bg-gradient-to-r from-primary via-orange-500 to-amber-500 hover:from-orange-500 hover:to-primary text-white text-base sm:text-lg font-bold py-4 sm:py-5 px-7 sm:px-10 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 mx-auto shadow-lg shadow-primary/30 w-full sm:w-auto">
               <Zap className="w-5 h-5" />
               Quero o eBook agora
             </button>

@@ -51,18 +51,18 @@ export default function EbookUrgencyBar() {
 
     return (
         <div id="urgency-bar" className={`fixed top-0 left-0 right-0 z-[999] bg-gradient-to-r from-red-700 via-red-600 to-orange-600 text-white py-2.5 px-4 text-center shadow-lg ${barClass}`}>
-            <div className="flex flex-wrap sm:flex-nowrap items-center justify-center gap-2 sm:gap-3 text-xs sm:text-base font-bold tracking-wide">
-                <span>⚠️</span>
+            <div className="flex flex-wrap sm:flex-nowrap items-center justify-center gap-1.5 sm:gap-3 text-xs sm:text-sm font-bold tracking-wide">
+                <span className="hidden xs:inline">⚠️</span>
                 <span>🔥 OFERTA EXPIRA EM:</span>
-                <div className="flex items-center gap-1 font-mono text-lg sm:text-xl">
-                    <span className="bg-white/20 px-2 py-0.5 rounded font-extrabold">{minutes}</span>
+                <div className="flex items-center gap-1 font-mono text-base sm:text-xl">
+                    <span className="bg-white/20 px-1.5 sm:px-2 py-0.5 rounded font-extrabold">{minutes}</span>
                     <span className="animate-pulse">:</span>
-                    <span className="bg-white/20 px-2 py-0.5 rounded font-extrabold">{seconds}</span>
+                    <span className="bg-white/20 px-1.5 sm:px-2 py-0.5 rounded font-extrabold">{seconds}</span>
                 </div>
                 <button
                     type="button"
                     onClick={scrollToOffer}
-                    className="ml-2 bg-white text-red-700 font-extrabold px-4 py-1 rounded-full text-xs hover:scale-105 transition-transform cursor-pointer"
+                    className="ml-1 sm:ml-2 bg-white text-red-700 font-extrabold px-3 sm:px-4 py-1 rounded-full text-xs hover:scale-105 transition-transform cursor-pointer"
                 >
                     GARANTIR AGORA
                 </button>

@@ -33,7 +33,7 @@ export default function EbookHero() {
   return (
     <section
       id="hero"
-      className="relative min-h-screen pt-24 pb-16 px-6 lg:px-20 flex items-center justify-center overflow-hidden"
+      className="relative min-h-[100dvh] pt-20 pb-12 px-4 sm:px-6 lg:px-20 flex items-center justify-center overflow-hidden"
     >
       {/* ---- Ambient glow orbs (3) ---- */}
       <div className="ebook-glow-orange absolute -top-20 -right-32 w-[420px] h-[420px] pointer-events-none" />
@@ -96,7 +96,7 @@ export default function EbookHero() {
         }}
       />
 
-      <div className="max-w-7xl mx-auto w-full grid lg:grid-cols-[1fr_0.9fr] gap-12 lg:gap-16 items-center py-8 relative">
+      <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-[1fr_0.9fr] gap-8 lg:gap-16 items-center py-6 relative">
         {/* Left: Copy */}
         <Reveal className="space-y-6">
           <Badge>
@@ -104,7 +104,7 @@ export default function EbookHero() {
             eBook Tecnico &middot; Flash64
           </Badge>
 
-          <h1 className="text-4xl sm:text-5xl lg:text-[3.25rem] xl:text-6xl font-extrabold leading-[1.08] tracking-tight">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[3.25rem] xl:text-6xl font-extrabold leading-[1.08] tracking-tight">
             <DecryptedText
               text="Dominando a"
               speed={30}
@@ -142,7 +142,7 @@ export default function EbookHero() {
           </p>
 
           {/* Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 pt-2">
+          <div className="flex flex-col xs:flex-row gap-3 sm:gap-4 pt-2">
             <a
               href={CHECKOUT_URL}
               className="hero-cta bg-gradient-to-r from-primary via-orange-500 to-amber-500 hover:brightness-110 text-white font-bold px-10 py-4 rounded-xl transition-all cursor-pointer hover:scale-[1.03] active:scale-[0.98] shadow-2xl shadow-primary/30 flex items-center justify-center gap-3 text-base"
@@ -206,19 +206,17 @@ export default function EbookHero() {
 
         {/* Right: Mockup */}
         <Reveal delay={300} className="relative flex items-center justify-center">
-          {/* Glow ring behind mockup */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
             <div
-              className="w-[320px] h-[320px] sm:w-[400px] sm:h-[400px] rounded-full blur-3xl"
+              className="w-[260px] h-[260px] sm:w-[400px] sm:h-[400px] rounded-full blur-3xl"
               style={{ background: 'radial-gradient(circle, rgba(255,107,0,0.12) 0%, rgba(139,92,246,0.06) 40%, transparent 70%)' }}
             />
           </div>
-
-          <div className="hero-image-wrapper relative">
+          <div className="hero-image-wrapper relative w-full flex justify-center">
             <img
               src="/images/ebook-mockup.png"
               alt="eBook Flash64 Na Prática - Mockup"
-              className="w-full max-w-[420px] drop-shadow-2xl"
+              className="w-[70vw] max-w-[320px] sm:max-w-[380px] lg:max-w-[420px] drop-shadow-2xl"
               style={{ filter: 'drop-shadow(0 0 40px rgba(255,107,0,0.25)) drop-shadow(0 0 80px rgba(139,92,246,0.15))' }}
             />
           </div>

@@ -40,7 +40,7 @@ export default function OfferSection() {
       <div className="max-w-3xl mx-auto">
         <Reveal>
           <div className="offer-card-glow gradient-border rounded-3xl relative overflow-hidden">
-            <div className="bg-gradient-to-br from-white/[0.04] to-white/[0.01] rounded-3xl p-8 md:p-12 relative">
+            <div className="bg-gradient-to-br from-white/[0.04] to-white/[0.01] rounded-3xl p-5 sm:p-8 md:p-12 relative">
               {/* Best seller badge */}
               <div className="absolute top-4 right-4 z-20">
                 <span className="inline-block px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-gradient-to-r from-primary via-orange-500 to-amber-500 text-white shadow-lg shadow-primary/30">
@@ -51,7 +51,7 @@ export default function OfferSection() {
               <div className="relative z-10 space-y-8">
                 <div className="text-center space-y-4">
                   <Badge className="mb-2">Oferta Especial</Badge>
-                  <h2 className="text-3xl md:text-4xl font-extrabold text-white">
+                  <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white">
                     <span className="text-gradient-multi">Dominando</span>{' '}
                     <span className="text-gradient-fire">a Flash64</span>
                   </h2>
@@ -84,19 +84,19 @@ export default function OfferSection() {
                   <div className="space-y-2">
                     <p className="text-gray-500 line-through text-lg">De R$ 97,00</p>
                     <p className="text-gray-300">Por apenas</p>
-                    <p className="text-5xl font-extrabold text-gradient-fire">R$ 47,00</p>
+                    <p className="text-4xl sm:text-5xl font-extrabold text-gradient-fire">R$ 47,00</p>
                     <p className="text-gray-400 text-sm">Acesso imediato após o pagamento</p>
                   </div>
 
                   <a href={CHECKOUT_URL} className="block">
-                    <button className="hero-cta w-full bg-gradient-to-r from-primary via-orange-500 to-amber-500 hover:from-orange-500 hover:to-primary text-white text-lg font-bold py-5 px-8 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-lg shadow-primary/30">
+                    <button className="hero-cta w-full bg-gradient-to-r from-primary via-orange-500 to-amber-500 hover:from-orange-500 hover:to-primary text-white text-base sm:text-lg font-bold py-4 sm:py-5 px-6 sm:px-8 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-lg shadow-primary/30">
                       <Zap className="w-5 h-5" />
                       Garantir meu eBook agora
                     </button>
                   </a>
 
                   {/* Trust badges */}
-                  <div className="flex flex-col sm:flex-row items-center justify-center gap-6 pt-2">
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 pt-2">
                     <div className="flex items-center gap-2 text-sm text-gray-400">
                       <Shield className="w-4 h-4 text-emerald-500" />
                       <span>Compra segura</span>

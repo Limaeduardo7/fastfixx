@@ -61,11 +61,11 @@ export default function AudienceSection() {
           </div>
         </Reveal>
 
-        <div className="grid lg:grid-cols-2 gap-12 relative">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12 relative">
           {/* Positive side */}
           <Reveal>
             <div className="gradient-border h-full rounded-2xl" style={{ background: 'rgba(16,24,40,0.8)' }}>
-              <div className="p-8">
+              <div className="p-5 sm:p-8">
                 <Badge variant="success" className="mb-6">Para quem é</Badge>
                 <h3 className="text-2xl font-bold text-white mb-8">
                   Este eBook foi feito para você se...
@@ -97,7 +97,7 @@ export default function AudienceSection() {
           {/* Negative side */}
           <Reveal delay={150}>
             <Card className="border-red-500/10 h-full bg-gradient-to-br from-red-500/5 to-transparent">
-              <CardContent className="p-8">
+              <CardContent className="p-5 sm:p-8">
                 <Badge variant="destructive" className="mb-6">Para quem NÃO é</Badge>
                 <h3 className="text-2xl font-bold text-white mb-8">
                   Não é para você se...

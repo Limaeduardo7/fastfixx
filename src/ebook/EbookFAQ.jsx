@@ -79,7 +79,7 @@ export default function EbookFAQ() {
                 >
                   <button
                     onClick={() => toggle(i)}
-                    className="w-full flex items-center gap-4 p-5 text-left"
+                    className="w-full flex items-center gap-3 sm:gap-4 p-4 sm:p-5 text-left"
                   >
                     {/* Numbered circle */}
                     <span
@@ -107,7 +107,7 @@ export default function EbookFAQ() {
                       isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
                     }`}
                   >
-                    <div className="px-5 pb-5 pl-[4.25rem]">
+                    <div className="px-4 pb-4 sm:px-5 sm:pb-5 pl-[3.25rem] sm:pl-[4.25rem]">
                       <p className="text-gray-300 text-sm leading-relaxed">
                         {faq.answer}
                       </p>

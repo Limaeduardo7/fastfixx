@@ -8,7 +8,6 @@ const pages = [
     label: 'Parâmetros UFS · p.9',
     color: '#3B82F6',
     rotation: -6,
-    zIndex: 5,
     shadow: 'rgba(59,130,246,0.2)',
   },
   {
@@ -17,7 +16,6 @@ const pages = [
     label: 'Chip Off · p.6',
     color: '#FF6B00',
     rotation: 0,
-    zIndex: 10,
     shadow: 'rgba(255,107,0,0.25)',
     badge: true,
   },
@@ -27,42 +25,83 @@ const pages = [
     label: 'Aba eMMC · p.11',
     color: '#06B6D4',
     rotation: 6,
-    zIndex: 5,
     shadow: 'rgba(6,182,212,0.2)',
   },
 ];
 
+function PageCard({ page, isFanout = false }) {
+  return (
+    <div
+      className="relative overflow-hidden rounded-lg border border-white/10 w-[160px] xs:w-[180px] sm:w-[210px] shrink-0"
+      style={{
+        transform: isFanout ? `rotate(${page.rotation}deg)` : 'none',
+        zIndex: page.badge ? 10 : 5,
+        boxShadow: `0 8px 40px ${page.shadow}, 0 0 0 1px rgba(255,255,255,0.05)`,
+        aspectRatio: '3/4',
+      }}
+    >
+      <img
+        src={page.src}
+        alt={page.alt}
+        className="w-full h-full object-cover object-top"
+      />
+      <div
+        className="absolute bottom-0 left-0 right-0 px-2 py-1.5 text-[9px] font-semibold text-center"
+        style={{ background: `linear-gradient(to top, ${page.color}33, transparent)`, color: page.color }}
+      >
+        {page.label}
+      </div>
+    </div>
+  );
+}
+
 export default function ContentPreview() {
   return (
-    <section className="py-24 px-6 lg:px-20 relative overflow-hidden">
+    <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-20 relative overflow-hidden">
       <div className="section-divider" />
       <div className="ebook-glow-purple absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -z-10" />
 
       <div className="max-w-7xl mx-auto">
         <Reveal>
-          <div className="text-center mb-16">
+          <div className="text-center mb-10 sm:mb-16">
             <Badge className="mb-4">Preview</Badge>
-            <h2 className="text-3xl lg:text-4xl font-extrabold text-white mb-4">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white mb-4">
               Material técnico de <span className="text-gradient-purple">alto nível</span>
             </h2>
-            <p className="text-gray-400 max-w-xl mx-auto">
+            <p className="text-gray-400 max-w-xl mx-auto text-sm sm:text-base">
               Conteúdo direto ao ponto, construído para quem trabalha na bancada e precisa de respostas claras.
             </p>
           </div>
         </Reveal>
 
         <Reveal delay={200}>
-          {/* Fan-out layout */}
-          <div className="relative flex items-center justify-center h-[340px] sm:h-[420px]">
+          {/* Mobile: horizontal scroll */}
+          <div className="sm:hidden flex gap-4 overflow-x-auto pb-4 px-2 snap-x snap-mandatory scrollbar-none">
+            {pages.map((page, i) => (
+              <div key={i} className="snap-center shrink-0 relative">
+                {page.badge && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-20">
+                    <span className="inline-block px-3 py-1 rounded-full bg-primary/90 text-white text-[10px] font-bold uppercase tracking-wider shadow-lg shadow-primary/30 whitespace-nowrap">
+                      Preview Real
+                    </span>
+                  </div>
+                )}
+                <PageCard page={page} />
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop: fan-out */}
+          <div className="hidden sm:flex items-center justify-center h-[340px] sm:h-[380px] md:h-[420px] relative">
             {pages.map((page, i) => (
               <div
                 key={i}
-                className={i === 1 ? 'relative' : 'absolute hidden sm:block'}
+                className={i === 1 ? 'relative' : 'absolute'}
                 style={
                   i === 0
-                    ? { left: 'calc(50% - 280px)' }
+                    ? { left: 'calc(50% - 270px)' }
                     : i === 2
-                    ? { right: 'calc(50% - 280px)' }
+                    ? { right: 'calc(50% - 270px)' }
                     : {}
                 }
               >
@@ -73,35 +112,14 @@ export default function ContentPreview() {
                     </span>
                   </div>
                 )}
-                <div
-                  className="relative overflow-hidden rounded-lg border border-white/10 w-[180px] sm:w-[210px]"
-                  style={{
-                    transform: `rotate(${page.rotation}deg)`,
-                    zIndex: page.zIndex,
-                    boxShadow: `0 8px 40px ${page.shadow}, 0 0 0 1px rgba(255,255,255,0.05)`,
-                    aspectRatio: '3/4',
-                  }}
-                >
-                  <img
-                    src={page.src}
-                    alt={page.alt}
-                    className="w-full h-full object-cover object-top"
-                  />
-                  {/* Bottom label */}
-                  <div
-                    className="absolute bottom-0 left-0 right-0 px-2 py-1.5 text-[9px] font-semibold text-center"
-                    style={{ background: `linear-gradient(to top, ${page.color}33, transparent)`, color: page.color }}
-                  >
-                    {page.label}
-                  </div>
-                </div>
+                <PageCard page={page} isFanout />
               </div>
             ))}
           </div>
         </Reveal>
 
         <Reveal delay={400}>
-          <p className="text-gray-500 text-xs text-center mt-8">
+          <p className="text-gray-500 text-xs text-center mt-6 sm:mt-8">
             Páginas reais do eBook — Chip Off (p.6), Parâmetros UFS (p.9), Aba eMMC (p.11).
           </p>
         </Reveal>

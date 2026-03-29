@@ -82,12 +82,12 @@ export default function EbookNotifications() {
             <div className="purchase-toast__content">
                 <div className="purchase-toast__eyebrow">
                     <span className="purchase-toast__badge">Nova compra</span>
-                    <span className="purchase-toast__region">eBook Flash64</span>
+                    <span className="purchase-toast__region">eBook</span>
                 </div>
                 <p className="purchase-toast__title">
                     <strong>{item.name}</strong> de {item.city}, {item.state}
                 </p>
-                <p className="purchase-toast__text">acabou de garantir o eBook Flash64.</p>
+                <p className="purchase-toast__text">acabou de garantir o eBook.</p>
             </div>
         </aside>
     );

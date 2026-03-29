@@ -101,9 +101,9 @@ export default function EbookHero() {
       <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-[1fr_0.9fr] gap-8 lg:gap-16 items-center py-6 relative">
         {/* Left: Copy */}
         <Reveal className="space-y-6 order-2 lg:order-1">
-          <Badge>
+          <Badge className="hidden lg:inline-flex">
             <span className="w-2 h-2 bg-primary rounded-full animate-pulse" />
-            eBook Tecnico &middot; Flash64
+            eBook Tecnico
           </Badge>
 
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[3.25rem] xl:text-6xl font-extrabold leading-[1.08] tracking-tight">
@@ -197,7 +197,11 @@ export default function EbookHero() {
         </div>
 
         {/* Right: Mockup */}
-        <Reveal delay={300} className="relative flex items-center justify-center order-1 lg:order-2">
+        <Reveal delay={300} className="relative flex flex-col items-center justify-center order-1 lg:order-2">
+          <Badge className="mb-4 lg:hidden inline-flex">
+            <span className="w-2 h-2 bg-primary rounded-full animate-pulse" />
+            eBook Tecnico
+          </Badge>
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
             <div
               className="w-[260px] h-[260px] sm:w-[400px] sm:h-[400px] rounded-full blur-3xl"
@@ -216,7 +220,7 @@ export default function EbookHero() {
       </div>
 
       {/* Scroll indicator */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-gray-500 text-xs">
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 hidden sm:flex flex-col items-center gap-2 text-gray-500 text-xs">
         <span>Role para baixo</span>
         <div className="w-5 h-8 border-2 border-gray-600 rounded-full flex justify-center pt-1.5">
           <div className="w-1 h-2 bg-gray-500 rounded-full animate-bounce" />

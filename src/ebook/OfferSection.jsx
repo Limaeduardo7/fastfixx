@@ -1,10 +1,8 @@
-import { useEffect } from 'react';
 import { Check, Zap, Shield, Lock } from 'lucide-react';
 import { Reveal } from '../components/ScrollReveal';
 import { Badge } from '../components/ui/badge';
 
 const CHECKOUT_URL = 'https://pay.hotmart.com/B105126454X?checkoutMode=10';
-const HOTMART_WIDGET_URL = 'https://pay.hotmart.com/B105126454X?checkoutMode=2';
 
 const features = [
   'Conexão ISP com critério técnico',
@@ -29,23 +27,6 @@ const checkColors = [
 ];
 
 export default function OfferSection() {
-  useEffect(() => {
-    if (!document.querySelector('script[src="https://static.hotmart.com/checkout/widget.min.js"]')) {
-      const imported = document.createElement('script');
-      imported.src = 'https://static.hotmart.com/checkout/widget.min.js';
-      imported.async = true;
-      document.head.appendChild(imported);
-    }
-
-    if (!document.querySelector('link[href="https://static.hotmart.com/css/hotmart-fb.min.css"]')) {
-      const link = document.createElement('link');
-      link.rel = 'stylesheet';
-      link.type = 'text/css';
-      link.href = 'https://static.hotmart.com/css/hotmart-fb.min.css';
-      document.head.appendChild(link);
-    }
-  }, []);
-
   return (
     <section id="offer" className="py-24 px-6 lg:px-20 relative overflow-hidden">
       {/* Section divider */}
@@ -106,18 +87,6 @@ export default function OfferSection() {
                     </button>
                   </a>
 
-                  <div className="flex justify-center">
-                    <a
-                      onClick={(e) => {
-                        e.preventDefault();
-                        return false;
-                      }}
-                      href={HOTMART_WIDGET_URL}
-                      className="hotmart-fb hotmart__button-checkout inline-flex"
-                    >
-                      <img src="https://static.hotmart.com/img/btn-buy-green.png" alt="Comprar com Hotmart" />
-                    </a>
-                  </div>
 
                   {/* Trust badges */}
                   <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 pt-2">

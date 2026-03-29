@@ -2,6 +2,7 @@ import { Zap, ArrowDown, Check, FileText, BookOpen, Target } from 'lucide-react'
 import { Reveal } from '../components/ScrollReveal';
 import { Badge } from '../components/ui/badge';
 import DecryptedText from '../components/reactbits/DecryptedText';
+import EbookUrgencyBar from './EbookUrgencyBar';
 
 const CHECKOUT_URL = '#checkout'; // Replace with actual checkout URL
 
@@ -33,8 +34,9 @@ export default function EbookHero() {
   return (
     <section
       id="hero"
-      className="relative min-h-[100dvh] pt-20 pb-12 px-4 sm:px-6 lg:px-20 flex items-center justify-center overflow-hidden"
+      className="relative min-h-[100dvh] pt-28 pb-12 px-4 sm:px-6 lg:px-20 flex items-center justify-center overflow-hidden"
     >
+      <EbookUrgencyBar />
       {/* ---- Ambient glow orbs (3) ---- */}
       <div className="ebook-glow-orange absolute -top-20 -right-32 w-[420px] h-[420px] pointer-events-none" />
       <div className="ebook-glow-cyan absolute -bottom-28 -left-28 w-[380px] h-[380px] pointer-events-none" />

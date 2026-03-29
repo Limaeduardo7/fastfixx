@@ -79,13 +79,6 @@ export default function ContentPreview() {
           <div className="sm:hidden flex gap-4 overflow-x-auto pb-4 px-2 snap-x snap-mandatory scrollbar-none">
             {pages.map((page, i) => (
               <div key={i} className="snap-center shrink-0 relative">
-                {page.badge && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-20">
-                    <span className="inline-block px-3 py-1 rounded-full bg-primary/90 text-white text-[10px] font-bold uppercase tracking-wider shadow-lg shadow-primary/30 whitespace-nowrap">
-                      Preview Real
-                    </span>
-                  </div>
-                )}
                 <PageCard page={page} />
               </div>
             ))}
@@ -105,13 +98,6 @@ export default function ContentPreview() {
                     : {}
                 }
               >
-                {page.badge && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-20">
-                    <span className="inline-block px-3 py-1 rounded-full bg-primary/90 text-white text-[10px] font-bold uppercase tracking-wider shadow-lg shadow-primary/30">
-                      Preview Real
-                    </span>
-                  </div>
-                )}
                 <PageCard page={page} isFanout />
               </div>
             ))}

@@ -57,9 +57,11 @@ function PageCard({ page, isFanout = false }) {
 
 export default function ContentPreview() {
   return (
-    <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-20 relative overflow-hidden">
+    <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-20 relative">
       <div className="section-divider" />
-      <div className="ebook-glow-purple absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -z-10" />
+      <div className="absolute inset-0 overflow-hidden -z-10 pointer-events-none">
+        <div className="ebook-glow-purple absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+      </div>
 
       <div className="max-w-7xl mx-auto">
         <Reveal>
@@ -76,7 +78,8 @@ export default function ContentPreview() {
 
         <Reveal delay={200}>
           {/* Mobile: horizontal scroll */}
-          <div className="sm:hidden flex gap-4 overflow-x-auto pb-4 px-2 snap-x snap-mandatory scrollbar-none">
+          <div className="sm:hidden overflow-hidden w-full">
+          <div className="flex gap-4 overflow-x-auto pb-4 px-2 snap-x snap-mandatory scrollbar-none">
             {pages.map((page, i) => (
               <div key={i} className="snap-center shrink-0 relative">
                 {page.badge && (
@@ -89,6 +92,7 @@ export default function ContentPreview() {
                 <PageCard page={page} />
               </div>
             ))}
+          </div>
           </div>
 
           {/* Desktop: fan-out */}

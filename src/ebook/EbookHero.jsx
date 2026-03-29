@@ -106,7 +106,7 @@ export default function EbookHero() {
 
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[3.25rem] xl:text-6xl font-extrabold leading-[1.08] tracking-tight">
             <DecryptedText
-              text="Dominando a"
+              text="Flash 64"
               speed={30}
               maxIterations={15}
               sequential={true}
@@ -117,7 +117,7 @@ export default function EbookHero() {
             <br />
             <span className="text-gradient-fire">
               <DecryptedText
-                text="Flash64"
+                text="na Prática"
                 speed={30}
                 maxIterations={15}
                 sequential={true}

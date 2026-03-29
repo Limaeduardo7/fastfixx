@@ -64,8 +64,8 @@ export default function AudienceSection() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12 relative">
           {/* Positive side */}
           <Reveal>
-            <div className="gradient-border h-full rounded-2xl" style={{ background: 'rgba(16,24,40,0.8)' }}>
-              <div className="p-5 sm:p-8">
+            <div className="gradient-border h-full rounded-2xl">
+              <div className="h-full rounded-[15px] p-5 sm:p-8" style={{ background: 'rgba(16,24,40,0.85)' }}>
                 <Badge variant="success" className="mb-6">Para quem é</Badge>
                 <h3 className="text-2xl font-bold text-white mb-8">
                   Este eBook foi feito para você se...

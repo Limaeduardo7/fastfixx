@@ -32,7 +32,7 @@ const pages = [
 function PageCard({ page, isFanout = false }) {
   return (
     <div
-      className="relative overflow-hidden rounded-lg border border-white/10 w-[160px] xs:w-[180px] sm:w-[210px] shrink-0"
+      className="relative overflow-hidden rounded-lg border border-white/10 w-[200px] xs:w-[230px] sm:w-[260px] md:w-[290px] shrink-0"
       style={{
         transform: isFanout ? `rotate(${page.rotation}deg)` : 'none',
         zIndex: page.badge ? 10 : 5,

@@ -101,10 +101,6 @@ export default function EbookHero() {
       <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-[1fr_0.9fr] gap-8 lg:gap-16 items-center py-6 relative">
         {/* Left: Copy */}
         <Reveal className="space-y-6 order-2 lg:order-1">
-          <Badge className="hidden lg:inline-flex">
-            <span className="w-2 h-2 bg-primary rounded-full animate-pulse" />
-            eBook Tecnico
-          </Badge>
 
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[3.25rem] xl:text-6xl font-extrabold leading-[1.08] tracking-tight">
             <span className="text-gradient-fire">
@@ -198,9 +194,9 @@ export default function EbookHero() {
 
         {/* Right: Mockup */}
         <Reveal delay={300} className="relative flex flex-col items-center justify-center order-1 lg:order-2">
-          <Badge className="mb-4 lg:hidden inline-flex">
+          <Badge className="mb-4 inline-flex">
             <span className="w-2 h-2 bg-primary rounded-full animate-pulse" />
-            eBook Tecnico
+            eBook Técnico - Flash 64
           </Badge>
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
             <div

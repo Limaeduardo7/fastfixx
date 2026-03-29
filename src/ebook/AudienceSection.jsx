@@ -72,11 +72,15 @@ export default function AudienceSection() {
                 </h3>
                 <div className="flex flex-col gap-6">
                   {positiveItems.map((item, i) => (
-                    <div key={i} className="flex items-start gap-3">
+                    <div key={item.text || i} className="flex items-start gap-3">
                       <CheckCircle className={`w-5 h-5 ${item.iconColor} shrink-0 mt-0.5`} />
                       <div>
-                        <p className="text-gray-300 text-sm leading-relaxed">{item.text}</p>
-                        <p className="text-gray-500 text-xs mt-1">{item.desc}</p>
+                        <p className="text-gray-300 text-sm leading-relaxed">
+                          {item.text || 'Técnicos iniciantes que querem acelerar o aprendizado'}
+                        </p>
+                        <p className="text-gray-500 text-xs mt-1">
+                          {item.desc || 'Fundamentos sólidos para começar com o pé direito.'}
+                        </p>
                       </div>
                     </div>
                   ))}

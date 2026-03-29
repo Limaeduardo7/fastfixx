@@ -92,7 +92,7 @@ export default function OfferSection() {
                   >
                     <button className="hero-cta w-full bg-gradient-to-r from-primary via-orange-500 to-amber-500 hover:from-orange-500 hover:to-primary text-white text-base sm:text-lg font-bold py-4 sm:py-5 px-6 sm:px-8 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-lg shadow-primary/30">
                       <Zap className="w-5 h-5" />
-                      Garantir meu eBook agora
+                      Garantir meu Ebook Agora
                     </button>
                   </a>
 

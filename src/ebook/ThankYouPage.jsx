@@ -12,6 +12,15 @@ export default function ThankYouPage() {
           o próximo passo é entrar no <strong className="text-white">FastFix Academy</strong>.
         </p>
 
+        <div className="mt-8 rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
+          <img
+            src="/images/01.jpg"
+            alt="Técnico João Mattoso realizando reparo avançado em placa Android"
+            className="w-full h-[260px] md:h-[340px] object-cover object-top"
+            loading="eager"
+          />
+        </div>
+
         <div className="mt-8 grid gap-3 sm:grid-cols-2">
           <a
             href={ACADEMY_URL}

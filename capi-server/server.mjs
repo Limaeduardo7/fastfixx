@@ -515,6 +515,29 @@ function cancelFlash64UpsellEmailFlow({ leadId, email }) {
   return canceled;
 }
 
+function cancelFlash64UpsellWhatsAppFlow({ leadId, phone }) {
+  let canceled = 0;
+  const normalizedPhone = normalizePhone(phone);
+
+  for (const [id, job] of scheduledJobs.entries()) {
+    const sameLead = leadId && job.leadId === leadId;
+    const samePhone = normalizedPhone && job.phone && normalizePhone(job.phone) === normalizedPhone;
+    const isUpsellWhatsApp = job.flow === 'flash64_whatsapp_upsell';
+
+    if (isUpsellWhatsApp && job.status === 'scheduled' && (sameLead || samePhone)) {
+      clearTimeout(job.timeoutId);
+      job.status = 'canceled';
+      job.canceledAt = new Date().toISOString();
+      job.cancelReason = 'upsell_purchased';
+      scheduledJobs.set(id, job);
+      canceled += 1;
+    }
+  }
+
+  persistJobs().catch(() => {});
+  return canceled;
+}
+
 function detectIntent(message = '') {
   const text = String(message || '').toLowerCase().trim();
 
@@ -905,6 +928,61 @@ function scheduleCheckoutAbandonFlow({ phone, name = 'Tudo bem?', leadId, source
   return jobs;
 }
 
+function scheduleFlash64WhatsAppUpsellFlow({ phone, name = 'Tudo bem?', leadId, source = 'manual' }) {
+  const canceled = cancelFlash64UpsellWhatsAppFlow({ leadId, phone });
+
+  const jobs = [
+    scheduleAutomation({
+      leadId,
+      flow: 'flash64_whatsapp_upsell',
+      step: 'd0',
+      phone,
+      delayMs: 15 * 1000,
+      text: `Fala, ${name}! 👊 Vi que você adquiriu o Flash 64.\nSe quiser evoluir para reparo avançado e aumentar ticket de bancada, o próximo passo é o FastFix Academy.\nQuer que eu te envie o link?`,
+      meta: { source },
+    }),
+    scheduleAutomation({
+      leadId,
+      flow: 'flash64_whatsapp_upsell',
+      step: 'd1',
+      phone,
+      delayMs: 24 * 60 * 60 * 1000,
+      text: `Passando pra reforçar: o Academy é o caminho mais rápido pra transformar o conteúdo do Flash64 em resultado de bancada.\nQuer o link da página?`,
+      meta: { source },
+    }),
+    scheduleAutomation({
+      leadId,
+      flow: 'flash64_whatsapp_upsell',
+      step: 'd3',
+      phone,
+      delayMs: 3 * 24 * 60 * 60 * 1000,
+      text: `Sem pressão, ${name}. Mas se a ideia é subir faturamento com reparo avançado, vale muito conhecer o FastFix Academy.\nTe mando o link agora?`,
+      meta: { source },
+    }),
+    scheduleAutomation({
+      leadId,
+      flow: 'flash64_whatsapp_upsell',
+      step: 'd7',
+      phone,
+      delayMs: 7 * 24 * 60 * 60 * 1000,
+      text: `Último lembrete por aqui: se quiser entrar no FastFix Academy, eu te envio o link da página e te explico as condições atuais.`,
+      meta: { source },
+    }),
+  ];
+
+  appendEventLog({
+    ts: new Date().toISOString(),
+    source: 'automation',
+    action: 'flash64_whatsapp_upsell_scheduled',
+    leadId,
+    phone: normalizePhone(phone),
+    canceled_previous_jobs: canceled,
+    jobs: jobs.map((j) => ({ id: j.id, step: j.step, executeAt: j.executeAt })),
+  }).catch(() => {});
+
+  return jobs;
+}
+
 app.post('/api/automation/checkout-abandon', async (req, res) => {
   const { phone, name = 'Tudo bem?', lead_id } = req.body || {};
   if (!phone || !lead_id) return res.status(400).json({ ok: false, error: 'phone e lead_id são obrigatórios' });
@@ -912,6 +990,18 @@ app.post('/api/automation/checkout-abandon', async (req, res) => {
   const jobs = scheduleCheckoutAbandonFlow({ phone, name, leadId: lead_id, source: 'manual_api' });
 
   return res.json({ ok: true, jobs: jobs.map((j) => ({ ...j, timeoutId: undefined })) });
+});
+
+app.post('/api/automation/whatsapp/flash64-upsell', async (req, res) => {
+  try {
+    const { lead_id, phone, name } = req.body || {};
+    if (!lead_id || !phone) return res.status(400).json({ ok: false, error: 'lead_id e phone são obrigatórios' });
+
+    const jobs = scheduleFlash64WhatsAppUpsellFlow({ leadId: lead_id, phone, name: name || 'Tudo bem?', source: 'manual_api' });
+    return res.json({ ok: true, jobs: jobs.map((j) => ({ ...j, timeoutId: undefined })) });
+  } catch (error) {
+    return res.status(500).json({ ok: false, error: error.message });
+  }
 });
 
 app.post('/api/automation/email/flash64-upsell', async (req, res) => {
@@ -1232,13 +1322,15 @@ app.post('/api/hotmart/webhook', async (req, res) => {
       const isFlash64 = productName.includes('flash 64');
       const isFastFixUpsell = productName.includes('fastfix academy') || productName.includes('fastfix');
       const buyerEmail = parsed.buyer?.email;
+      const buyerPhone = parsed.buyer?.checkout_phone || parsed.buyer?.phone;
       const buyerName = parsed.buyer?.name;
+      const firstName = buyerName ? String(buyerName).split(' ')[0] : 'Tudo bem?';
 
       if (isFlash64 && buyerEmail && externalId) {
         const emailJobs = scheduleFlash64UpsellEmails({
           leadId: externalId,
           email: buyerEmail,
-          name: buyerName ? String(buyerName).split(' ')[0] : '',
+          name: firstName,
         });
 
         await appendEventLog({
@@ -1252,8 +1344,28 @@ app.post('/api/hotmart/webhook', async (req, res) => {
         });
       }
 
+      if (isFlash64 && buyerPhone && externalId) {
+        const whatsappJobs = scheduleFlash64WhatsAppUpsellFlow({
+          leadId: externalId,
+          phone: buyerPhone,
+          name: firstName,
+          source: 'hotmart_flash64_purchase',
+        });
+
+        await appendEventLog({
+          ts: new Date().toISOString(),
+          source: 'automation',
+          action: 'scheduled_whatsapp_from_hotmart_purchase',
+          leadId: externalId,
+          orderId: parsed.orderId,
+          phone: normalizePhone(buyerPhone),
+          jobs: whatsappJobs.map((j) => ({ id: j.id, step: j.step, executeAt: j.executeAt })),
+        });
+      }
+
       if (isFastFixUpsell) {
         const canceledEmailJobs = cancelFlash64UpsellEmailFlow({ leadId: externalId, email: buyerEmail });
+        const canceledWhatsAppJobs = cancelFlash64UpsellWhatsAppFlow({ leadId: externalId, phone: buyerPhone });
         await appendEventLog({
           ts: new Date().toISOString(),
           source: 'automation_email',
@@ -1261,7 +1373,8 @@ app.post('/api/hotmart/webhook', async (req, res) => {
           leadId: externalId,
           orderId: parsed.orderId,
           email: buyerEmail,
-          canceled: canceledEmailJobs,
+          canceledEmailJobs,
+          canceledWhatsAppJobs,
         });
       }
     }

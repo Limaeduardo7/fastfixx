@@ -381,25 +381,50 @@ function cancelLeadAutomations(leadId) {
 }
 
 function generateAgentReply(message = '') {
-  const text = String(message || '').toLowerCase();
+  const text = String(message || '').toLowerCase().trim();
+
+  // Opt-out / LGPD
+  if (/\b(sair|parar|cancelar|remover|descadastrar|não quero|nao quero|stop)\b/.test(text)) {
+    return 'Perfeito, vou pausar as mensagens por aqui ✅ Se mudar de ideia, é só me chamar com "voltar".';
+  }
+
+  if (/\b(voltar|retomar|quero voltar|ativar)\b/.test(text)) {
+    return `Fechado! Reativei seu atendimento por aqui 🙌 Eu sou o ${AGENT_NAME}. Posso te ajudar com preço, conteúdo e matrícula no FastFix.`;
+  }
 
   if (/\b(oi|olá|ola|bom dia|boa tarde|boa noite)\b/.test(text)) {
-    return `Oi! 👋 Eu sou o ${AGENT_NAME}. Posso te ajudar com dúvidas sobre o treinamento FastFix, valores, formas de pagamento e matrícula.`;
+    return `Oi! 👋 Eu sou o ${AGENT_NAME}. Posso te ajudar com dúvidas sobre o FastFix (valor, conteúdo, pagamento e matrícula).`;
   }
 
-  if (/\b(preço|preco|valor|quanto|custa)\b/.test(text)) {
-    return 'Hoje a condição ativa é promocional. Se quiser, te envio agora o link direto para garantir sua vaga com segurança.';
+  if (/\b(preço|preco|valor|quanto|custa|investimento)\b/.test(text)) {
+    return 'Hoje o FastFix está com condição promocional. Se quiser, te envio agora o link de inscrição pra garantir a vaga.';
   }
 
-  if (/\b(link|comprar|checkout|inscri|matr[ií]cula)\b/.test(text)) {
+  if (/\b(parcela|parcelado|parcelamento|cart[aã]o|pix|boleto|pagamento)\b/.test(text)) {
+    return 'Temos opções de pagamento no checkout (cartão, Pix e boleto). Se quiser, já te mando o link direto para finalizar com segurança.';
+  }
+
+  if (/\b(conte[uú]do|m[oó]dulo|aula|acesso|garantia|certificado|suporte)\b/.test(text)) {
+    return 'O FastFix é completo e prático, com acesso ao conteúdo, suporte e garantia. Se quiser, te explico o que vem incluso e o melhor caminho para seu nível hoje.';
+  }
+
+  if (/\b(n[aã]o confio|golpe|confi[aá]vel|funciona mesmo|vale a pena)\b/.test(text)) {
+    return 'Totalmente justo perguntar isso 👍 O treinamento foi feito para aplicação real de bancada, com foco em aumentar taxa de acerto e faturamento. Se quiser, te explico em 1 min se faz sentido para o seu momento.';
+  }
+
+  if (/\b(caro|sem dinheiro|sem grana|depois|agora n[aã]o|to sem)\b/.test(text)) {
+    return 'Entendo. A ideia é o curso se pagar com os primeiros reparos de placa. Se você quiser, eu te mostro uma forma simples de começar sem se enrolar.';
+  }
+
+  if (/\b(link|comprar|checkout|inscri|matr[ií]cula|quero entrar|quero comprar|tenho interesse)\b/.test(text)) {
     return 'Perfeito! Aqui está o link direto para finalizar sua inscrição: https://pay.hotmart.com/R103290726F?checkoutMode=10';
   }
 
-  if (/\b(suporte|ajuda|d[uú]vida|atendente|humano)\b/.test(text)) {
-    return 'Claro! Vou te ajudar por aqui. Se preferir atendimento humano, me diga seu nome e a dúvida principal que eu priorizo seu caso.';
+  if (/\b(atendente|humano|falar com pessoa|falar com vendedor)\b/.test(text)) {
+    return 'Claro! Posso te encaminhar para atendimento humano agora. Me diz seu nome e sua principal dúvida em uma frase.';
   }
 
-  return 'Entendi 🙌 Me diz em uma frase o que você precisa agora (valor, conteúdo, acesso, pagamento ou link de inscrição) que eu te respondo direto.';
+  return 'Fechado 🙌 Pra te responder direto, me diz em uma frase o que você quer agora: valor, conteúdo, pagamento ou link de inscrição.';
 }
 
 function compactObject(obj = {}) {

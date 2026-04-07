@@ -1,4 +1,4 @@
-import { Check, Zap, Shield, Lock, Gift } from 'lucide-react';
+import { Check, Zap, Shield, Lock, Gift, Bot } from 'lucide-react';
 import { Reveal } from '../components/ScrollReveal';
 import { Badge } from '../components/ui/badge';
 import { buildCheckoutUrl, trackEvent } from '../lib/metaTracking';
@@ -74,15 +74,28 @@ export default function OfferSection() {
                   ))}
                 </ul>
 
-                {/* Bonus callout */}
-                <div className="rounded-xl border border-amber-500/20 bg-amber-500/[0.06] p-4 sm:p-5 flex items-center gap-4">
-                  <div className="flex items-center justify-center w-10 h-10 rounded-full bg-amber-500/15 shrink-0">
-                    <Gift className="w-5 h-5 text-amber-400" />
+                {/* Bonus callouts */}
+                <div className="space-y-3">
+                  <div className="rounded-xl border border-amber-500/20 bg-amber-500/[0.06] p-4 sm:p-5 flex items-center gap-4">
+                    <div className="flex items-center justify-center w-10 h-10 rounded-full bg-amber-500/15 shrink-0">
+                      <Gift className="w-5 h-5 text-amber-400" />
+                    </div>
+                    <div className="text-left">
+                      <p className="text-amber-400 text-xs font-bold uppercase tracking-wider mb-0.5">Bônus incluso</p>
+                      <p className="text-gray-200 text-sm font-semibold">eBook Troca de Memória Flash64</p>
+                      <p className="text-gray-400 text-xs mt-0.5">Guia essencial para dominar a troca de eMMC/UFS.</p>
+                    </div>
                   </div>
-                  <div className="text-left">
-                    <p className="text-amber-400 text-xs font-bold uppercase tracking-wider mb-0.5">Bônus incluso</p>
-                    <p className="text-gray-200 text-sm font-semibold">eBook Troca de Memória Flash64</p>
-                    <p className="text-gray-400 text-xs mt-0.5">Guia essencial para dominar a troca de eMMC/UFS.</p>
+
+                  <div className="rounded-xl border border-orange-500/25 bg-orange-500/[0.08] p-4 sm:p-5 flex items-center gap-4">
+                    <div className="flex items-center justify-center w-10 h-10 rounded-full bg-orange-500/15 shrink-0">
+                      <Bot className="w-5 h-5 text-orange-300" />
+                    </div>
+                    <div className="text-left">
+                      <p className="text-orange-300 text-xs font-bold uppercase tracking-wider mb-0.5">Bônus extra</p>
+                      <p className="text-gray-100 text-sm font-semibold">Assistente de IA Profissional para assistência avançada</p>
+                      <p className="text-gray-300 text-xs mt-0.5">Suporte para diagnóstico, orçamento, atendimento e decisões técnicas no dia a dia.</p>
+                    </div>
                   </div>
                 </div>
 

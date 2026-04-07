@@ -1,4 +1,4 @@
-import { Zap, ArrowDown, Check, FileText, BookOpen, Gift } from 'lucide-react';
+import { Zap, ArrowDown, Check, FileText, BookOpen, Gift, Bot } from 'lucide-react';
 import { Reveal } from '../components/ScrollReveal';
 import { Badge } from '../components/ui/badge';
 import DecryptedText from '../components/reactbits/DecryptedText';
@@ -18,7 +18,8 @@ function scrollToSection(id) {
 const trustItems = [
   { text: 'PDF imediato', Icon: FileText, color: 'text-cyan-400', bg: 'bg-cyan-500/15', border: 'border-cyan-500/25' },
   { text: 'Leitura objetiva', Icon: BookOpen, color: 'text-violet-400', bg: 'bg-violet-500/15', border: 'border-violet-500/25' },
-  { text: 'Bônus incluso', Icon: Gift, color: 'text-amber-400', bg: 'bg-amber-500/15', border: 'border-amber-500/25' },
+  { text: 'Bônus de IA incluso', Icon: Bot, color: 'text-orange-300', bg: 'bg-orange-500/15', border: 'border-orange-500/25' },
+  { text: 'Bônus memória incluso', Icon: Gift, color: 'text-amber-400', bg: 'bg-amber-500/15', border: 'border-amber-500/25' },
 ];
 
 /* Floating particle positions */
@@ -144,6 +145,11 @@ export default function EbookHero() {
             <span className="text-emerald-400 font-bold">chip off</span> e
             estabilidade de bancada.
           </p>
+
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-500/10 border border-orange-500/25">
+            <Bot className="w-4 h-4 text-orange-300" />
+            <span className="text-orange-200 text-sm font-semibold">Bônus extra: Assistente de IA Profissional incluso</span>
+          </div>
 
           {/* Buttons */}
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-2 w-full sm:w-auto">

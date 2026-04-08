@@ -1,4 +1,4 @@
-import { Check, Zap, Shield, Lock, Gift } from 'lucide-react';
+import { Check, Zap, Shield, Lock, Gift, Bot, FileSpreadsheet, ClipboardList, Radio } from 'lucide-react';
 import { Reveal } from '../components/ScrollReveal';
 import { Badge } from '../components/ui/badge';
 import { buildCheckoutUrl, trackEvent } from '../lib/metaTracking';
@@ -74,15 +74,53 @@ export default function OfferSection() {
                   ))}
                 </ul>
 
-                {/* Bonus callout */}
-                <div className="rounded-xl border border-amber-500/20 bg-amber-500/[0.06] p-4 sm:p-5 flex items-center gap-4">
-                  <div className="flex items-center justify-center w-10 h-10 rounded-full bg-amber-500/15 shrink-0">
-                    <Gift className="w-5 h-5 text-amber-400" />
+                {/* Bonus callouts */}
+                <div className="space-y-3">
+                  <p className="text-amber-400 text-xs font-bold uppercase tracking-wider">🎁 5 Bônus inclusos na compra</p>
+                  <div className="rounded-xl border border-amber-500/20 bg-amber-500/[0.06] p-4 flex items-center gap-3">
+                    <div className="flex items-center justify-center w-9 h-9 rounded-full bg-amber-500/15 shrink-0">
+                      <Gift className="w-4 h-4 text-amber-400" />
+                    </div>
+                    <div className="text-left">
+                      <p className="text-gray-200 text-sm font-semibold">eBook Troca de Memória Flash64</p>
+                      <p className="text-gray-400 text-xs mt-0.5">Guia essencial para dominar a troca de eMMC/UFS.</p>
+                    </div>
                   </div>
-                  <div className="text-left">
-                    <p className="text-amber-400 text-xs font-bold uppercase tracking-wider mb-0.5">Bônus incluso</p>
-                    <p className="text-gray-200 text-sm font-semibold">eBook Troca de Memória Flash64</p>
-                    <p className="text-gray-400 text-xs mt-0.5">Guia essencial para dominar a troca de eMMC/UFS.</p>
+                  <div className="rounded-xl border border-violet-500/20 bg-violet-500/[0.06] p-4 flex items-center gap-3">
+                    <div className="flex items-center justify-center w-9 h-9 rounded-full bg-violet-500/15 shrink-0">
+                      <Bot className="w-4 h-4 text-violet-400" />
+                    </div>
+                    <div className="text-left">
+                      <p className="text-gray-200 text-sm font-semibold">Assistente de IA Exclusivo para Técnicos</p>
+                      <p className="text-gray-400 text-xs mt-0.5">IA treinada para responder dúvidas técnicas de reparo.</p>
+                    </div>
+                  </div>
+                  <div className="rounded-xl border border-cyan-500/20 bg-cyan-500/[0.06] p-4 flex items-center gap-3">
+                    <div className="flex items-center justify-center w-9 h-9 rounded-full bg-cyan-500/15 shrink-0">
+                      <FileSpreadsheet className="w-4 h-4 text-cyan-400" />
+                    </div>
+                    <div className="text-left">
+                      <p className="text-gray-200 text-sm font-semibold">Planilha de Precificação</p>
+                      <p className="text-gray-400 text-xs mt-0.5">Calcule o valor ideal dos seus serviços com precisão.</p>
+                    </div>
+                  </div>
+                  <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/[0.06] p-4 flex items-center gap-3">
+                    <div className="flex items-center justify-center w-9 h-9 rounded-full bg-emerald-500/15 shrink-0">
+                      <ClipboardList className="w-4 h-4 text-emerald-400" />
+                    </div>
+                    <div className="text-left">
+                      <p className="text-gray-200 text-sm font-semibold">Checklist – Troca de Memória (Profissional)</p>
+                      <p className="text-gray-400 text-xs mt-0.5">Protocolo completo para não pular nenhuma etapa.</p>
+                    </div>
+                  </div>
+                  <div className="rounded-xl border border-rose-500/20 bg-rose-500/[0.06] p-4 flex items-center gap-3">
+                    <div className="flex items-center justify-center w-9 h-9 rounded-full bg-rose-500/15 shrink-0">
+                      <Radio className="w-4 h-4 text-rose-400" />
+                    </div>
+                    <div className="text-left">
+                      <p className="text-gray-200 text-sm font-semibold">Tabela de Partições de RF <span className="text-rose-400 text-xs ml-1">⚠️ essencial</span></p>
+                      <p className="text-gray-400 text-xs mt-0.5">Partições de rádio frequência por fabricante e arquitetura.</p>
+                    </div>
                   </div>
                 </div>
 

@@ -18,7 +18,7 @@ function scrollToSection(id) {
 const trustItems = [
   { text: 'PDF imediato', Icon: FileText, color: 'text-cyan-400', bg: 'bg-cyan-500/15', border: 'border-cyan-500/25' },
   { text: 'Leitura objetiva', Icon: BookOpen, color: 'text-violet-400', bg: 'bg-violet-500/15', border: 'border-violet-500/25' },
-  { text: 'Bônus incluso', Icon: Gift, color: 'text-amber-400', bg: 'bg-amber-500/15', border: 'border-amber-500/25' },
+  { text: '5 Bônus inclusos', Icon: Gift, color: 'text-amber-400', bg: 'bg-amber-500/15', border: 'border-amber-500/25' },
 ];
 
 /* Floating particle positions */
@@ -181,13 +181,6 @@ export default function EbookHero() {
 
       </div>
 
-      {/* Scroll indicator */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 hidden sm:flex flex-col items-center gap-2 text-gray-500 text-xs">
-        <span>Role para baixo</span>
-        <div className="w-5 h-8 border-2 border-gray-600 rounded-full flex justify-center pt-1.5">
-          <div className="w-1 h-2 bg-gray-500 rounded-full animate-bounce" />
-        </div>
-      </div>
     </section>
   );
 }

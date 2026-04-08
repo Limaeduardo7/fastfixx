@@ -69,6 +69,14 @@ export default function FinalCTA() {
             <span>PDF completo</span>
             <span className="w-1.5 h-1.5 rounded-full bg-violet-500 inline-block" />
             <span className="text-amber-400 font-semibold">+ Bônus: Troca de Memória</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-violet-500 inline-block" />
+            <span className="text-violet-400 font-semibold">+ Assistente de IA</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-cyan-500 inline-block" />
+            <span className="text-cyan-400 font-semibold">+ Planilha de Precificação</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />
+            <span className="text-emerald-400 font-semibold">+ Checklist Profissional</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-rose-500 inline-block" />
+            <span className="text-rose-400 font-semibold">+ Tabela de Partições RF</span>
           </p>
         </Reveal>
       </div>

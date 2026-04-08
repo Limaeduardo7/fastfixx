@@ -13,6 +13,14 @@ const app = express();
 app.set('trust proxy', true);
 app.use(express.json({ limit: '512kb' }));
 
+// Evolution can call /api/evolution/inbound/<event> when webhookByEvents=true
+app.use((req, _res, next) => {
+  if (req.path.startsWith('/api/evolution/inbound/')) {
+    req.url = '/api/evolution/inbound';
+  }
+  next();
+});
+
 const PORT = process.env.PORT || 3100;
 const PIXEL_ID = process.env.META_PIXEL_ID;
 const ACCESS_TOKEN = process.env.META_ACCESS_TOKEN;

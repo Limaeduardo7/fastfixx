@@ -36,6 +36,10 @@ const AUTOMATION_JOBS_PATH = process.env.AUTOMATION_JOBS_PATH || '/root/fastfixx
 const CONTACT_MEMORY_DIR = process.env.CONTACT_MEMORY_DIR || '/root/fastfixx/capi-server/data/contacts';
 const AGENT_ENABLED = String(process.env.WHATSAPP_AGENT_ENABLED || 'true') === 'true';
 const AGENT_NAME = process.env.WHATSAPP_AGENT_NAME || 'Assistente FastFix';
+const KIMI_ENABLED = String(process.env.WHATSAPP_KIMI_ENABLED || 'true') === 'true';
+const KIMI_API_URL = process.env.KIMI_API_URL || 'https://integrate.api.nvidia.com/v1/chat/completions';
+const KIMI_API_KEY = process.env.KIMI_API_KEY || process.env.NVIDIA_API_KEY || '';
+const KIMI_MODEL = process.env.KIMI_MODEL || 'moonshotai/kimi-k2.5';
 
 const SMTP_HOST = process.env.SMTP_HOST;
 const SMTP_PORT = Number(process.env.SMTP_PORT || 587);
@@ -551,51 +555,101 @@ function detectIntent(message = '') {
 
   if (/\b(sair|parar|cancelar|remover|descadastrar|não quero|nao quero|stop)\b/.test(text)) return 'opt_out';
   if (/\b(voltar|retomar|quero voltar|ativar)\b/.test(text)) return 'resume';
-  if (/\b(link|comprar|checkout|inscri|matr[ií]cula|quero entrar|quero comprar|tenho interesse)\b/.test(text)) return 'checkout';
+  if (/\b(link|comprar|checkout|inscri|matr[ií]cula|quero entrar|quero comprar|tenho interesse|manda o link)\b/.test(text)) return 'checkout';
   if (/\b(preço|preco|valor|quanto|custa|investimento)\b/.test(text)) return 'price';
   if (/\b(parcela|parcelado|parcelamento|cart[aã]o|pix|boleto|pagamento)\b/.test(text)) return 'payment';
   if (/\b(conte[uú]do|m[oó]dulo|aula|acesso|garantia|certificado|suporte)\b/.test(text)) return 'content';
   if (/\b(n[aã]o confio|golpe|confi[aá]vel|funciona mesmo|vale a pena)\b/.test(text)) return 'trust';
   if (/\b(caro|sem dinheiro|sem grana|depois|agora n[aã]o|to sem)\b/.test(text)) return 'objection_price';
   if (/\b(atendente|humano|falar com pessoa|falar com vendedor)\b/.test(text)) return 'human';
+  if (/\b(diagn[oó]stico|diagnostico|an[aá]lise|analise|defeito)\b/.test(text)) return 'need_diagnosis';
+  if (/\b(execu[cç][aã]o|execucao|bancada|procedimento|reparo)\b/.test(text)) return 'need_execution';
+  if (/\b(fechamento|or[cç]amento|orcamento|cliente|venda|aprova[cç][aã]o|aprovacao)\b/.test(text)) return 'need_closing';
   if (/\b(oi|olá|ola|bom dia|boa tarde|boa noite)\b/.test(text)) return 'greeting';
   return 'fallback';
 }
 
-function generateAgentReply(message = '', contactMemory = {}) {
+async function generateAgentReply(message = '', contactMemory = {}) {
   const intent = detectIntent(message);
   const lastOffer = contactMemory?.offers?.[contactMemory.offers.length - 1]?.name || 'FastFix Academy';
-  let reply;
 
   if (contactMemory?.status === 'opted_out' && intent !== 'resume') {
     return { intent: 'opted_out_silence', reply: null };
   }
 
   if (intent === 'opt_out') {
-    reply = 'Perfeito, vou pausar as mensagens por aqui ✅ Se quiser voltar, é só me mandar "voltar".';
-  } else if (intent === 'resume') {
-    reply = `Fechado! Reativei seu atendimento 🙌 Eu sou o ${AGENT_NAME}. Posso te ajudar a entender se o ${lastOffer} faz sentido para o seu momento.`;
-  } else if (intent === 'greeting') {
-    reply = `Oi! 👋 Eu sou o ${AGENT_NAME}. Posso te ajudar com o ${lastOffer}. Se quiser, te faço uma pergunta rápida para te indicar o melhor caminho.`;
-  } else if (intent === 'price') {
-    reply = `Claro. Hoje o ${lastOffer} está em condição promocional. Se você quiser, te envio o link e te explico de forma objetiva se vale para o seu perfil.`;
-  } else if (intent === 'payment') {
-    reply = 'Tem opções de pagamento no checkout (cartão, Pix e boleto). Se você quiser, te envio o link e te ajudo a escolher a melhor forma.';
-  } else if (intent === 'content') {
-    reply = `No ${lastOffer} você tem método completo, aplicação prática e suporte. Se me disser seu nível atual, eu te explico exatamente o que mais vai te ajudar primeiro.`;
-  } else if (intent === 'trust') {
-    reply = `Pergunta super válida 👍 A proposta do ${lastOffer} é aplicação real de bancada, com foco em reduzir erro e aumentar resultado.`;
-  } else if (intent === 'objection_price') {
-    reply = `Te entendo. O foco é fazer o ${lastOffer} se pagar com os primeiros reparos. Se quiser, eu te mostro uma forma simples e sem pressa de começar.`;
-  } else if (intent === 'checkout') {
-    reply = 'Perfeito. Aqui está a página de vendas da FastFix Academy: https://fastfixcaxias.com';
-  } else if (intent === 'human') {
-    reply = 'Combinado. Posso te encaminhar para atendimento humano agora. Me diz seu nome e sua dúvida principal em uma frase.';
-  } else {
-    reply = 'Para te orientar melhor: hoje sua maior dificuldade está mais em diagnóstico, execução ou fechamento com cliente?';
+    return { intent, reply: 'Perfeito, vou pausar as mensagens por aqui ✅ Se quiser voltar, é só me mandar "voltar".' };
   }
 
-  return { intent, reply };
+  if (intent === 'resume') {
+    return { intent, reply: `Fechado! Reativei seu atendimento 🙌 Eu sou o ${AGENT_NAME}.` };
+  }
+
+  if (!KIMI_ENABLED || !KIMI_API_KEY) {
+    return { intent, reply: 'Posso te ajudar com valores, conteúdo, pagamento e link de inscrição. Me diz em uma frase o que você precisa agora.' };
+  }
+
+  const history = Array.isArray(contactMemory?.history) ? contactMemory.history.slice(-8) : [];
+  const historyText = history
+    .map((item) => `Cliente: ${item.inbound || ''}\nAssistente: ${item.reply || ''}`)
+    .join('\n\n');
+
+  const systemPrompt = `Você é ${AGENT_NAME}, atendente comercial no WhatsApp da FastFix Academy.
+Responda em português do Brasil, tom humano, curto (máx. 3 frases), sem cara de robô.
+Não use mensagens prontas repetitivas.
+Objetivo: entender a dúvida e avançar a conversa para conversão com naturalidade.
+Se o cliente pedir link/compra, use exatamente: https://fastfixcaxias.com
+Se pedirem para parar, confirme pausa e diga que pode voltar com "voltar".
+Não invente preços se não tiver certeza; ofereça enviar o link oficial para detalhes.
+Produto principal: ${lastOffer}.`;
+
+  const userPrompt = `Último texto do cliente: ${String(message || '').trim()}
+
+Contexto recente (se houver):
+${historyText || 'Sem histórico'}
+
+Gere apenas a resposta que será enviada no WhatsApp.`;
+
+  const payload = {
+    model: KIMI_MODEL,
+    messages: [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: userPrompt },
+    ],
+    max_tokens: 800,
+    temperature: 0.7,
+    top_p: 1,
+    stream: false,
+    chat_template_kwargs: { thinking: true },
+  };
+
+  try {
+    const response = await fetch(KIMI_API_URL, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${KIMI_API_KEY}`,
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Kimi API falhou (${response.status})`);
+    }
+
+    const data = await response.json();
+    const reply = data?.choices?.[0]?.message?.content?.trim();
+
+    if (!reply) {
+      return { intent, reply: 'Perfeito. Me diz sua principal dúvida agora e eu te respondo direto.' };
+    }
+
+    return { intent, reply };
+  } catch (error) {
+    console.error('Erro Kimi WhatsApp agent:', error?.message || error);
+    return { intent, reply: 'Tive uma instabilidade rápida aqui. Me diz sua dúvida em uma frase que eu já te respondo.' };
+  }
 }
 
 function compactObject(obj = {}) {
@@ -1088,7 +1142,7 @@ app.post('/api/evolution/inbound', async (req, res) => {
     }
 
     const contactMemory = await readContactMemory(phone);
-    const { intent, reply } = generateAgentReply(text, contactMemory);
+    const { intent, reply } = await generateAgentReply(text, contactMemory);
 
     const now = new Date().toISOString();
     if (!reply) {

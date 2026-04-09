@@ -34,7 +34,7 @@ const bonuses = [
     label: 'Acesso Exclusivo',
     title: 'Assistente de IA para Técnicos',
     price: 'R$ 47,00',
-    video: '/Animação Robo.mp4',
+    video: '/Animação ROBO LOOP.mp4',
     description: 'IA treinada especificamente para o universo do reparo de placas. Tire dúvidas técnicas, receba orientações de diagnóstico e acelere seu aprendizado.',
     features: [
       'Dúvidas técnicas em tempo real',
@@ -53,6 +53,7 @@ const bonuses = [
     label: 'Planilha Bônus',
     title: 'Planilha de Precificação',
     price: 'R$ 27,00',
+    video: '/Video Planilha de Precificação.mp4',
     description: 'Pare de cobrar no achismo. Calcule o valor ideal de cada serviço com base em custos, tempo e margem de lucro.',
     features: [
       'Cálculo por tipo de serviço',

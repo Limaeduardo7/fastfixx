@@ -20,7 +20,7 @@ const bonuses = [
     label: 'eBook Bônus',
     title: 'Troca de Memória Flash64',
     description: 'O guia essencial para técnicos que querem dominar a troca de eMMC/UFS. Procedimentos claros, sem improviso.',
-    image: '/images/bonus-troca-memoria.png',
+    image: '/images/Ebook-Troca-Memoria.png',
     price: 'R$ 37,00',
     features: bonusFeatures,
   },
@@ -34,6 +34,7 @@ const bonuses = [
     label: 'Acesso Exclusivo',
     title: 'Assistente de IA para Técnicos',
     price: 'R$ 47,00',
+    video: '/Animação Robo.mp4',
     description: 'IA treinada especificamente para o universo do reparo de placas. Tire dúvidas técnicas, receba orientações de diagnóstico e acelere seu aprendizado.',
     features: [
       'Dúvidas técnicas em tempo real',
@@ -134,11 +135,11 @@ export default function BonusSection() {
                           <img
                             src={bonus.image}
                             alt={bonus.title}
-                            className="w-40 sm:w-48 md:w-56 rounded-2xl"
+                            className="w-64 sm:w-80 md:w-96 rounded-2xl"
                           />
                         </div>
                       )}
-                      {!bonus.image && (
+                      {!bonus.image && !bonus.video && (
                         <div className={`flex items-center justify-center w-16 h-16 rounded-2xl ${bonus.iconBg} shrink-0`}>
                           <Icon className={`w-8 h-8 ${bonus.iconColor}`} />
                         </div>
@@ -174,6 +175,19 @@ export default function BonusSection() {
                         </div>
                       </div>
                     </div>
+
+                    {bonus.video && (
+                      <div className="mt-8 rounded-xl overflow-hidden border border-white/10">
+                        <video
+                          src={bonus.video}
+                          autoPlay
+                          loop
+                          muted
+                          playsInline
+                          className="w-full h-auto object-cover"
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
               </Reveal>

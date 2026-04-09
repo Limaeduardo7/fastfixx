@@ -113,7 +113,7 @@ export default function EbookHero() {
               loading="eager"
               fetchPriority="high"
               decoding="async"
-              className="w-[50vw] max-w-[220px] sm:max-w-[260px] lg:max-w-[280px] drop-shadow-2xl"
+              className="w-[90vw] max-w-[380px] sm:max-w-[420px] lg:max-w-[480px] drop-shadow-2xl"
               style={{ filter: 'drop-shadow(0 0 40px rgba(255,107,0,0.25)) drop-shadow(0 0 80px rgba(139,92,246,0.15))' }}
             />
           </div>

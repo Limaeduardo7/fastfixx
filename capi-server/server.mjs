@@ -41,6 +41,7 @@ const KIMI_API_URL = process.env.KIMI_API_URL || 'https://integrate.api.nvidia.c
 const KIMI_API_KEY = process.env.KIMI_API_KEY || process.env.NVIDIA_API_KEY || '';
 const KIMI_MODEL = process.env.KIMI_MODEL || 'moonshotai/kimi-k2.5';
 const AGENT_MEMORY_FILE = process.env.WHATSAPP_AGENT_MEMORY_FILE || '/root/fastfixx/capi-server/whatsapp-agent-memory.md';
+const OWNER_NOTIFY_PHONE = normalizePhone(process.env.WHATSAPP_OWNER_NOTIFY_PHONE || '');
 
 const SMTP_HOST = process.env.SMTP_HOST;
 const SMTP_PORT = Number(process.env.SMTP_PORT || 587);
@@ -1121,11 +1122,6 @@ app.post('/api/automation/email/flash64-upsell', async (req, res) => {
 
 app.post('/api/evolution/inbound', async (req, res) => {
   try {
-    if (!AGENT_ENABLED) {
-      await appendEventLog({ ts: new Date().toISOString(), source: 'whatsapp_agent', ignored: true, reason: 'agent_disabled' });
-      return res.json({ ok: true, ignored: true, reason: 'agent desativado' });
-    }
-
     const payload = req.body || {};
     let data = payload.data || payload;
 
@@ -1167,6 +1163,35 @@ app.post('/api/evolution/inbound', async (req, res) => {
         hasText: Boolean(text),
       });
       return res.json({ ok: true, ignored: true, reason: 'sem phone/text' });
+    }
+
+    if (OWNER_NOTIFY_PHONE && OWNER_NOTIFY_PHONE !== phone) {
+      const inboundPreview = String(text).slice(0, 700);
+      const notifyText = `📩 Resposta recebida no WhatsApp\nDe: ${phone}\nMensagem: ${inboundPreview}`;
+      try {
+        await sendWhatsAppText(OWNER_NOTIFY_PHONE, notifyText);
+        await appendEventLog({
+          ts: new Date().toISOString(),
+          source: 'whatsapp_notify',
+          action: 'owner_notified',
+          from: phone,
+          to: OWNER_NOTIFY_PHONE,
+        });
+      } catch (notifyError) {
+        await appendEventLog({
+          ts: new Date().toISOString(),
+          source: 'whatsapp_notify',
+          action: 'owner_notify_failed',
+          from: phone,
+          to: OWNER_NOTIFY_PHONE,
+          error: notifyError.message,
+        });
+      }
+    }
+
+    if (!AGENT_ENABLED) {
+      await appendEventLog({ ts: new Date().toISOString(), source: 'whatsapp_agent', ignored: true, reason: 'agent_disabled' });
+      return res.json({ ok: true, ignored: true, reason: 'agent desativado' });
     }
 
     const contactMemory = await readContactMemory(phone);

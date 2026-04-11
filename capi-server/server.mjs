@@ -1165,21 +1165,32 @@ app.post('/api/evolution/inbound', async (req, res) => {
       return res.json({ ok: true, ignored: true, reason: 'sem phone/text' });
     }
 
-    if (OWNER_NOTIFY_PHONE && OWNER_NOTIFY_PHONE !== phone) {
+    let contactMemory = await readContactMemory(phone);
+
+    const hasPriorConversation =
+      Boolean(contactMemory?.lastInboundAt) ||
+      (Array.isArray(contactMemory?.history) && contactMemory.history.length > 0) ||
+      Boolean(contactMemory?.ownerConversationNotifiedAt);
+
+    if (OWNER_NOTIFY_PHONE && OWNER_NOTIFY_PHONE !== phone && !hasPriorConversation) {
+      const now = new Date().toISOString();
       const inboundPreview = String(text).slice(0, 700);
-      const notifyText = `📩 Resposta recebida no WhatsApp\nDe: ${phone}\nMensagem: ${inboundPreview}`;
+      const notifyText = `📩 Nova conversa no WhatsApp\nDe: ${phone}\nMensagem: ${inboundPreview}`;
       try {
         await sendWhatsAppText(OWNER_NOTIFY_PHONE, notifyText);
+        contactMemory.ownerConversationNotifiedAt = now;
+        contactMemory.updatedAt = now;
+        await saveContactMemory(phone, contactMemory);
         await appendEventLog({
-          ts: new Date().toISOString(),
+          ts: now,
           source: 'whatsapp_notify',
-          action: 'owner_notified',
+          action: 'owner_notified_new_conversation',
           from: phone,
           to: OWNER_NOTIFY_PHONE,
         });
       } catch (notifyError) {
         await appendEventLog({
-          ts: new Date().toISOString(),
+          ts: now,
           source: 'whatsapp_notify',
           action: 'owner_notify_failed',
           from: phone,
@@ -1194,7 +1205,7 @@ app.post('/api/evolution/inbound', async (req, res) => {
       return res.json({ ok: true, ignored: true, reason: 'agent desativado' });
     }
 
-    const contactMemory = await readContactMemory(phone);
+    contactMemory = await readContactMemory(phone);
     const { intent, reply } = await generateAgentReply(text, contactMemory);
 
     const now = new Date().toISOString();

@@ -126,17 +126,17 @@ export default function AcademyPromoSection() {
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => trackEvent('ViewContent', { content_name: 'academy_section_flash64', placement: 'flash64_bottom' })}
-                    className="hero-cta inline-flex items-center justify-center gap-2 bg-gradient-to-r from-primary via-orange-500 to-amber-500 hover:from-orange-500 hover:to-primary text-white font-bold px-9 py-4 rounded-xl transition-all duration-300 shadow-lg shadow-primary/30 text-base"
+                    className="hero-cta inline-flex items-center justify-center gap-2 bg-gradient-to-r from-primary via-orange-500 to-amber-500 hover:from-orange-500 hover:to-primary text-white font-bold px-6 py-3.5 sm:px-9 sm:py-4 rounded-xl transition-all duration-300 shadow-lg shadow-primary/30 text-sm sm:text-base whitespace-nowrap"
                   >
-                    <Zap className="w-5 h-5" />
+                    <Zap className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
                     Ver FastFix Academy
-                    <ArrowRight className="w-4 h-4" />
+                    <ArrowRight className="w-4 h-4 shrink-0" />
                   </a>
                   <a
                     href="https://wa.me/5554981673607?text=Olá!%20Quero%20saber%20mais%20sobre%20o%20FastFix%20Academy"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center gap-2 border border-white/20 bg-white/5 hover:bg-white/10 text-white font-semibold px-9 py-4 rounded-xl transition-all duration-300 text-base"
+                    className="inline-flex items-center justify-center gap-2 border border-white/20 bg-white/5 hover:bg-white/10 text-white font-semibold px-6 py-3.5 sm:px-9 sm:py-4 rounded-xl transition-all duration-300 text-sm sm:text-base whitespace-nowrap"
                   >
                     Falar com suporte
                   </a>

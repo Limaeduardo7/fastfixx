@@ -47,8 +47,8 @@ export default function EbookApp() {
         <ContentPreview />
         <AudienceSection />
         <OfferSection />
-        <EbookFAQ />
         <AcademyPromoSection />
+        <EbookFAQ />
         <FinalCTA />
       </main>
       <EbookFooter />

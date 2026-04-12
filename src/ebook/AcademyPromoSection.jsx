@@ -49,7 +49,7 @@ export default function AcademyPromoSection() {
           <div className="flex justify-center mb-6">
             <span className="inline-flex items-center gap-2 bg-orange-500/10 border border-orange-500/30 text-orange-300 text-xs font-bold uppercase tracking-[0.2em] px-4 py-2 rounded-full">
               <Zap className="w-3.5 h-3.5" />
-              Sua evolução começa aqui
+              Conheça o FastFix Academy
             </span>
           </div>
         </Reveal>
@@ -82,9 +82,9 @@ export default function AcademyPromoSection() {
               {/* Headline */}
               <div className="text-center space-y-4 mb-10">
                 <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white leading-tight">
-                  O eBook abriu a porta.{' '}
+                  Quer ser um técnico{' '}
                   <span className="relative inline-block">
-                    O Academy te leva até o topo.
+                    de referência?
                     <span
                       className="absolute bottom-0 left-0 right-0 h-[3px] rounded-full bg-gradient-to-r from-primary via-orange-500 to-amber-400"
                       style={{ animation: 'expandWidth 0.8s 0.5s ease-out both' }}

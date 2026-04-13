@@ -31,7 +31,7 @@ export default function OfferSection() {
   return (
     <section id="offer" className="py-24 px-6 lg:px-20 relative overflow-hidden">
       {/* Section divider */}
-      <div className="section-divider mb-24" />
+      <div className="section-divider mb-12" />
 
       {/* Glow orbs */}
       <div className="ebook-glow-orange absolute -top-32 left-1/2 -translate-x-1/2 -z-10" />

@@ -61,7 +61,7 @@ export default function EbookFAQ() {
   return (
     <section className="py-24 px-6 lg:px-20">
       {/* Section divider */}
-      <div className="section-divider mb-24" />
+      <div className="section-divider mb-12" />
 
       <div className="max-w-3xl mx-auto">
         <Reveal>

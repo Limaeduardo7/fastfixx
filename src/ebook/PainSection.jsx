@@ -106,7 +106,7 @@ export default function PainSection() {
         <Reveal delay={700}>
           <div className="mt-8 text-center">
             <a href="#offer" onClick={() => trackEvent('InitiateCheckout', { currency: 'BRL', value: 67, placement: 'ebook_pain_cta' })} className="hero-cta inline-flex items-center justify-center bg-gradient-to-r from-primary via-orange-500 to-amber-500 text-white font-bold px-8 py-3 rounded-xl">
-              Garantir meu Ebook Agora
+              Quero um método claro
             </a>
           </div>
         </Reveal>

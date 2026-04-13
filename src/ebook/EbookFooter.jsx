@@ -24,30 +24,30 @@ export default function EbookFooter() {
 
             {/* Column 2 - Links */}
             <div>
-              <h4 className="text-white font-bold mb-4">Links Úteis</h4>
+              <h4 className="text-white font-bold mb-4">Navegação</h4>
               <ul className="space-y-2">
                 <li>
                   <a
-                    href="#"
+                    href="#hero"
                     className="text-gray-400 text-sm hover:text-cyan-400 transition-colors"
                   >
-                    Política de Privacidade
+                    Início
                   </a>
                 </li>
                 <li>
                   <a
-                    href="#"
+                    href="#topics"
                     className="text-gray-400 text-sm hover:text-violet-400 transition-colors"
                   >
-                    Termos de Uso
+                    Conteúdo
                   </a>
                 </li>
                 <li>
                   <a
-                    href="#"
-                    className="text-gray-400 text-sm hover:text-emerald-400 transition-colors"
+                    href="#offer"
+                    className="text-gray-400 text-sm hover:text-primary transition-colors"
                   >
-                    Suporte
+                    Oferta
                   </a>
                 </li>
               </ul>

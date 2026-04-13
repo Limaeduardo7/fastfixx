@@ -82,13 +82,23 @@ export default function ContentPreview() {
         <Reveal delay={200}>
           {/* Mobile: horizontal scroll */}
           <div className="sm:hidden overflow-hidden w-full">
-          <div className="flex gap-4 overflow-x-auto pb-4 px-2 snap-x snap-mandatory scrollbar-none">
-            {pages.map((page, i) => (
-              <div key={i} className="snap-center shrink-0 relative">
-                <PageCard page={page} />
-              </div>
-            ))}
-          </div>
+            <div className="flex gap-4 overflow-x-auto pb-4 px-2 snap-x snap-mandatory scrollbar-none">
+              {pages.map((page, i) => (
+                <div key={i} className="snap-center shrink-0 relative">
+                  <PageCard page={page} />
+                </div>
+              ))}
+            </div>
+            {/* Pagination dots */}
+            <div className="flex justify-center gap-2 mt-2">
+              {pages.map((page, i) => (
+                <span
+                  key={i}
+                  className="w-2 h-2 rounded-full"
+                  style={{ background: page.color, opacity: i === 1 ? 1 : 0.4 }}
+                />
+              ))}
+            </div>
           </div>
 
           {/* Desktop: fan-out */}
@@ -122,6 +132,7 @@ export default function ContentPreview() {
             <a href="#offer" onClick={() => trackEvent('InitiateCheckout', { currency: 'BRL', value: 67, placement: 'ebook_preview_cta' })} className="hero-cta inline-flex items-center justify-center bg-gradient-to-r from-primary via-orange-500 to-amber-500 text-white font-bold px-8 py-3 rounded-xl">
               Garantir meu Ebook Agora
             </a>
+
           </div>
         </Reveal>
       </div>

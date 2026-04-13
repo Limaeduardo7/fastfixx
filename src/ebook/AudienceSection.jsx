@@ -43,7 +43,7 @@ const negativeItems = [
 
 export default function AudienceSection() {
   return (
-    <section className="py-24 px-6 lg:px-20 border-t border-white/5 relative overflow-hidden">
+    <section className="py-16 px-6 lg:px-20 border-t border-white/5 relative overflow-hidden">
       {/* Section divider */}
       <div className="section-divider" />
 
@@ -98,24 +98,20 @@ export default function AudienceSection() {
             <div className="h-[2px] w-32 bg-gradient-to-r from-emerald-500/60 via-primary/60 to-red-500/60 rounded-full" />
           </div>
 
-          {/* Negative side */}
+          {/* Negative side — compact */}
           <Reveal delay={150}>
-            <Card className="border-red-500/10 h-full bg-gradient-to-br from-red-500/5 to-transparent">
-              <CardContent className="p-5 sm:p-8">
-                <Badge variant="destructive" className="mb-6">Para quem NÃO é</Badge>
-                <h3 className="text-2xl font-bold text-white mb-8">
-                  Não é para você se...
-                </h3>
-                <div className="flex flex-col gap-5">
-                  {negativeItems.map((item, i) => (
-                    <div key={i} className="flex items-start gap-3">
-                      <XCircle className={`w-5 h-5 ${item.iconColor} shrink-0 mt-0.5`} />
-                      <p className="text-gray-300 text-sm leading-relaxed">{item.text}</p>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+            <div className="rounded-2xl border border-red-500/10 bg-gradient-to-br from-red-500/5 to-transparent p-5 sm:p-6 h-full flex flex-col justify-center">
+              <Badge variant="destructive" className="mb-4 self-start">Para quem NÃO é</Badge>
+              <p className="text-gray-400 text-sm mb-4">Este material pode não ser ideal se você ainda não está pronto para:</p>
+              <ul className="flex flex-col gap-3">
+                {negativeItems.map((item, i) => (
+                  <li key={i} className="flex items-center gap-2.5">
+                    <XCircle className={`w-4 h-4 ${item.iconColor} shrink-0`} />
+                    <span className="text-gray-300 text-sm">{item.text}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </Reveal>
         </div>
       </div>

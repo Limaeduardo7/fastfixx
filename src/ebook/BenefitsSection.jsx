@@ -13,6 +13,7 @@ const benefits = [
     iconColor: 'text-cyan-400',
     accent: 'card-accent-cyan',
     titleColor: 'text-cyan-400',
+    highlight: true,
   },
   {
     icon: ShieldCheck,
@@ -58,12 +59,13 @@ const benefits = [
     iconColor: 'text-yellow-400',
     accent: 'card-accent-yellow',
     titleColor: 'text-yellow-400',
+    highlight: true,
   },
 ];
 
 export default function BenefitsSection() {
   return (
-    <section className="py-24 px-6 lg:px-20 border-t border-white/5 relative overflow-hidden">
+    <section className="py-16 px-6 lg:px-20 border-t border-white/5 relative overflow-hidden">
       {/* Section divider */}
       <div className="section-divider" />
 
@@ -85,8 +87,13 @@ export default function BenefitsSection() {
             const Icon = benefit.icon;
             return (
               <Reveal key={benefit.title} delay={i * 100}>
-                <Card hover className={`h-full ${benefit.accent}`}>
+                <Card hover className={`h-full ${benefit.accent} ${benefit.highlight ? 'ring-1 ring-white/10 shadow-lg shadow-black/30' : ''}`}>
                   <CardContent>
+                    {benefit.highlight && (
+                      <div className="flex justify-end mb-2">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-orange-400 bg-orange-500/10 px-2 py-0.5 rounded-full">Destaque</span>
+                      </div>
+                    )}
                     <div className={`w-12 h-12 rounded-xl ${benefit.iconBg} flex items-center justify-center mb-5`}>
                       <Icon className={`w-5 h-5 ${benefit.iconColor}`} />
                     </div>
@@ -106,7 +113,7 @@ export default function BenefitsSection() {
         <Reveal delay={500}>
           <div className="mt-10 text-center">
             <a href="#offer" onClick={() => trackEvent('InitiateCheckout', { currency: 'BRL', value: 67, placement: 'ebook_benefits_cta' })} className="hero-cta inline-flex items-center justify-center bg-gradient-to-r from-primary via-orange-500 to-amber-500 text-white font-bold px-8 py-3 rounded-xl">
-              Garantir meu Ebook Agora
+              Quero esses ganhos
             </a>
           </div>
         </Reveal>

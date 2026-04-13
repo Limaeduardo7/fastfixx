@@ -4,7 +4,7 @@ import DecryptedText from './reactbits/DecryptedText';
 
 export default function HeroSection() {
     return (
-        <section id="hero" className="relative min-h-screen pt-24 pb-16 px-6 lg:px-20 flex items-center justify-center overflow-hidden">
+        <section id="hero" className="relative min-h-screen pt-10 pb-16 px-6 lg:px-20 flex items-center justify-center overflow-hidden">
             <div className="hero-glow hero-glow--1"></div>
             <div className="hero-glow hero-glow--2"></div>
 

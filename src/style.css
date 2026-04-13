@@ -52,20 +52,6 @@ body {
   transform: translateY(0);
 }
 
-/* Urgency Timer */
-#urgency-bar {
-  animation: slideDown 0.5s ease-out;
-}
-
-@keyframes slideDown {
-  from {
-    transform: translateY(-100%);
-  }
-
-  to {
-    transform: translateY(0);
-  }
-}
 
 
 /* Hero Refinements */
@@ -599,12 +585,6 @@ body {
   #urgency-bar span,
   #urgency-bar button {
     font-size: 0.75rem;
-  }
-
-  /* Prevent hero overlap on mobile - more top padding */
-  #hero {
-    padding-top: 7.5rem !important;
-    /* Increased slightly for safety */
   }
 
   /* Urgency bar extra mobile refinements */

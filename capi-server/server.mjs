@@ -60,6 +60,7 @@ if (!PIXEL_ID || !ACCESS_TOKEN) {
 
 const scheduledJobs = new Map();
 const processedHotmartEvents = new Map();
+const processedHotmartPurchases = new Map();
 let lastHotmartWebhook = null;
 let cachedAgentMemory = null;
 let cachedAgentMemoryAt = 0;
@@ -839,8 +840,13 @@ function parseHotmartPayload(payload = {}) {
     .toString()
     .toLowerCase();
 
+  const rawEventName = (payload.event_name || payload.event || data.event || '').toString().toLowerCase();
+
   let mappedEvent = null;
-  if (statusRaw.includes('approved') || statusRaw.includes('completed') || statusRaw.includes('purchase_approved')) {
+  const isApproved = statusRaw.includes('purchase_approved') || statusRaw === 'approved' || statusRaw.includes('_approved');
+  const isPurchaseCompleted = rawEventName.includes('purchase') && statusRaw.includes('completed');
+
+  if (isApproved || isPurchaseCompleted) {
     mappedEvent = 'Purchase';
   } else if (statusRaw.includes('billet') || statusRaw.includes('pix') || statusRaw.includes('generated') || statusRaw.includes('printed')) {
     mappedEvent = 'AddPaymentInfo';
@@ -851,7 +857,8 @@ function parseHotmartPayload(payload = {}) {
   const valueRaw = purchase.price?.value || purchase.value || transaction.value || data.price || payload.price || 0;
   const value = normalizeCurrencyValue(valueRaw);
   const currency = purchase.price?.currency_code || purchase.currency || data.currency || payload.currency || 'BRL';
-  const baseId = String(transaction.id || purchase.order_id || purchase.transaction || data.id || payload.id || crypto.randomUUID());
+  const orderId = purchase.order_id || transaction.order_id || data.order_id || payload.order_id;
+  const transactionId = transaction.id || purchase.transaction || data.transaction_id || payload.transaction;
   const tracking = extractTracking(payload);
   const eventTime =
     parseEventTime(data.event_date) ||
@@ -864,7 +871,22 @@ function parseHotmartPayload(payload = {}) {
     parseEventTime(payload.event_date) ||
     parseEventTime(payload.created_at);
 
-  const eventId = `${baseId}_${mappedEvent || 'unknown'}`;
+  const baseIdRaw = pickFirst(transactionId, orderId, data.id, payload.id);
+  const fallbackStableId = crypto
+    .createHash('sha1')
+    .update(JSON.stringify({
+      mappedEvent,
+      statusRaw,
+      eventTime,
+      email: buyer?.email,
+      phone: buyer?.checkout_phone || buyer?.phone,
+      value,
+      currency,
+      product: product.name || data.product_name,
+    }))
+    .digest('hex');
+  const baseId = String(baseIdRaw || fallbackStableId);
+  const eventId = `${mappedEvent || 'unknown'}_${baseId}`;
 
   return {
     mappedEvent,
@@ -873,7 +895,8 @@ function parseHotmartPayload(payload = {}) {
     eventTime,
     value,
     currency,
-    orderId: purchase.order_id || transaction.id,
+    orderId,
+    transactionId,
     productName: product.name || data.product_name,
     buyer,
     payloadData: data,
@@ -897,6 +920,30 @@ function isDuplicateHotmartEvent(eventId) {
 
   if (processedHotmartEvents.has(eventId)) return true;
   processedHotmartEvents.set(eventId, now);
+  return false;
+}
+
+function getHotmartPurchaseDedupKey(parsed = {}) {
+  if (parsed.mappedEvent !== 'Purchase') return null;
+  return pickFirst(
+    parsed.transactionId && `txn:${parsed.transactionId}`,
+    parsed.orderId && `order:${parsed.orderId}`
+  );
+}
+
+function isDuplicateHotmartPurchase(parsed = {}) {
+  const dedupKey = getHotmartPurchaseDedupKey(parsed);
+  if (!dedupKey) return false;
+
+  const now = Date.now();
+  const ttlMs = 30 * 24 * 60 * 60 * 1000; // 30 dias
+
+  for (const [id, ts] of processedHotmartPurchases.entries()) {
+    if (now - ts > ttlMs) processedHotmartPurchases.delete(id);
+  }
+
+  if (processedHotmartPurchases.has(dedupKey)) return true;
+  processedHotmartPurchases.set(dedupKey, now);
   return false;
 }
 
@@ -1427,7 +1474,22 @@ app.post('/api/hotmart/webhook', async (req, res) => {
       return res.json({ ok: true, ignored: true, reason: 'duplicate_event_id', eventId: parsed.eventId });
     }
 
-    const externalId = pickFirst(parsed.tracking.external_id, parsed.orderId);
+    if (isDuplicateHotmartPurchase(parsed)) {
+      const dedupKey = getHotmartPurchaseDedupKey(parsed);
+      await appendEventLog({
+        ts: new Date().toISOString(),
+        source: 'hotmart_webhook',
+        ignored: true,
+        reason: 'duplicate_purchase_transaction',
+        event_id: parsed.eventId,
+        order_id: parsed.orderId,
+        transaction_id: parsed.transactionId,
+        dedup_key: dedupKey,
+      });
+      return res.json({ ok: true, ignored: true, reason: 'duplicate_purchase_transaction', dedupKey });
+    }
+
+    const externalId = pickFirst(parsed.tracking.external_id, parsed.orderId, parsed.transactionId);
 
     const { fbData, payloadValidation } = await sendMetaEvent({
       event_name: parsed.mappedEvent,
@@ -1438,6 +1500,7 @@ app.post('/api/hotmart/webhook', async (req, res) => {
         value: parsed.value,
         currency: parsed.currency,
         order_id: parsed.orderId,
+        transaction_id: parsed.transactionId,
         content_name: parsed.productName,
         source: 'hotmart_webhook',
       },
@@ -1558,6 +1621,7 @@ app.post('/api/hotmart/webhook', async (req, res) => {
       status: parsed.statusRaw,
       event_id: parsed.eventId,
       order_id: parsed.orderId,
+      transaction_id: parsed.transactionId,
       has_em: Boolean(parsed.buyer?.email),
       has_ph: Boolean(parsed.buyer?.checkout_phone || parsed.buyer?.phone),
       has_fbc: Boolean(parsed.tracking?.fbc),

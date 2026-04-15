@@ -134,7 +134,7 @@ export default function AcademyPromoSection() {
                     <ArrowRight className="w-4 h-4 shrink-0" />
                   </a>
                   <a
-                    href="https://wa.me/5554910006375?text=Olá!%20Quero%20saber%20mais%20sobre%20o%20FastFix%20Academy"
+                    href="https://wa.me/5554991006375?text=Olá!%20Quero%20saber%20mais%20sobre%20o%20FastFix%20Academy"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center justify-center gap-2 border border-white/20 bg-white/5 hover:bg-white/10 text-white font-semibold px-6 py-3.5 sm:px-9 sm:py-4 rounded-xl transition-all duration-300 text-sm sm:text-base whitespace-nowrap"

@@ -68,7 +68,7 @@ function Flash64Page() {
                             Voltar para a inicial
                         </a>
                         <a
-                            href="https://wa.me/5554910006375?text=Ol%C3%A1!%20Quero%20saber%20sobre%20a%20Flash64"
+                            href="https://wa.me/5554991006375?text=Ol%C3%A1!%20Quero%20saber%20sobre%20a%20Flash64"
                             className="inline-flex items-center justify-center rounded-xl bg-[#FF6B00] px-6 py-3 font-semibold text-white transition hover:bg-[#E66000]"
                         >
                             Falar com suporte

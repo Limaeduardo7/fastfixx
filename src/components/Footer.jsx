@@ -27,7 +27,7 @@ export default function Footer() {
                         <ul className="space-y-2">
                             <li><a href="#hero" className="hover:text-primary transition-colors">Início</a></li>
                             <li><a href="#steps" className="hover:text-primary transition-colors">Módulos</a></li>
-                            <li><a href="https://wa.me/5554910006375?text=Ol%C3%A1!%20Preciso%20de%20suporte%20com%20o%20FastFix%20Academy." target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">Suporte via WhatsApp</a></li>
+                            <li><a href="https://wa.me/5554991006375?text=Ol%C3%A1!%20Preciso%20de%20suporte%20com%20o%20FastFix%20Academy." target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">Suporte via WhatsApp</a></li>
                         </ul>
                     </Reveal>
                     <Reveal delay={200}>

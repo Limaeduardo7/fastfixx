@@ -1,6 +1,6 @@
 const ACADEMY_URL = 'https://fastfixcaxias.com';
 const AI_ASSISTANT_URL = 'https://chatgpt.com/g/g-69d510f8ad4c8191b4a6a3c19ea6b51b-assistente-fastfix';
-const SUPPORT_URL = 'https://wa.me/5554910006375?text=Ol%C3%A1!%20Comprei%20o%20eBook%20Flash%2064%20e%20quero%20saber%20sobre%20o%20FastFix%20Academy.';
+const SUPPORT_URL = 'https://wa.me/5554991006375?text=Ol%C3%A1!%20Comprei%20o%20eBook%20Flash%2064%20e%20quero%20saber%20sobre%20o%20FastFix%20Academy.';
 
 export default function ThankYouPage() {
   return (

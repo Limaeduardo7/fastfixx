@@ -86,7 +86,7 @@ export default function TrackingTable() {
       if (dupOnly && !e.isDuplicate) return false
 
       if (!query) return true
-      const haystack = [e.event_name, e.source, e.event_id, e.order_id, e.transaction_id, e.dedupKey]
+      const haystack = [e.event_name, e.source, e.event_id, e.order_id, e.transaction_id, e.user_id, e.external_id, e.dedupKey]
         .filter(Boolean)
         .join(' ')
         .toLowerCase()
@@ -175,6 +175,7 @@ export default function TrackingTable() {
                     <Th>event_id</Th>
                     <Th>order_id</Th>
                     <Th>transaction_id</Th>
+                    <Th>user_id / external_id</Th>
                     <Th>Dedup</Th>
                     <Th>Payload</Th>
                   </tr>
@@ -188,6 +189,12 @@ export default function TrackingTable() {
                       <Td>{e.event_id || '-'}</Td>
                       <Td>{e.order_id || '-'}</Td>
                       <Td>{e.transaction_id || '-'}</Td>
+                      <Td>
+                        <div className="space-y-1">
+                          <div>{e.user_id || '-'}</div>
+                          <div className="text-xs text-white/60">{e.external_id || '-'}</div>
+                        </div>
+                      </Td>
                       <Td>
                         {e.dedupKey ? (
                           <span className={`inline-flex rounded-full border px-2 py-0.5 text-xs ${e.isDuplicate ? 'text-red-300 border-red-500/50 bg-red-500/10' : 'text-emerald-300 border-emerald-500/40 bg-emerald-500/10'}`}>

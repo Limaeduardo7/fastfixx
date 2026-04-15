@@ -860,6 +860,15 @@ function parseHotmartPayload(payload = {}) {
   const orderId = purchase.order_id || transaction.order_id || data.order_id || payload.order_id;
   const transactionId = transaction.id || purchase.transaction || data.transaction_id || payload.transaction;
   const tracking = extractTracking(payload);
+  const userId = pickFirst(
+    data.user_id,
+    payload.user_id,
+    buyer.user_id,
+    buyer.id,
+    buyer.code,
+    data.subscriber_code,
+    data.user_code
+  );
   const eventTime =
     parseEventTime(data.event_date) ||
     parseEventTime(data.purchase_date) ||
@@ -895,8 +904,9 @@ function parseHotmartPayload(payload = {}) {
     eventTime,
     value,
     currency,
-    orderId,
-    transactionId,
+    orderId: orderId || transactionId || baseIdRaw,
+    transactionId: transactionId || orderId || baseIdRaw,
+    userId,
     productName: product.name || data.product_name,
     buyer,
     payloadData: data,
@@ -1424,6 +1434,7 @@ app.post('/api/meta/events', async (req, res) => {
       has_fbc: Boolean(enrichedUserData?.fbc),
       has_fbp: Boolean(enrichedUserData?.fbp),
       has_external_id: Boolean(enrichedUserData?.external_id),
+      external_id: enrichedUserData?.external_id || null,
       has_client_ip_address: Boolean(finalIp),
       ip_source: clientMeta.ip_source,
       has_client_user_agent: Boolean(finalUa),
@@ -1622,6 +1633,8 @@ app.post('/api/hotmart/webhook', async (req, res) => {
       event_id: parsed.eventId,
       order_id: parsed.orderId,
       transaction_id: parsed.transactionId,
+      user_id: parsed.userId || null,
+      external_id: externalId || null,
       has_em: Boolean(parsed.buyer?.email),
       has_ph: Boolean(parsed.buyer?.checkout_phone || parsed.buyer?.phone),
       has_fbc: Boolean(parsed.tracking?.fbc),

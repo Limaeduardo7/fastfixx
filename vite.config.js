@@ -15,6 +15,7 @@ export default defineConfig({
             input: {
                 main: resolve(__dirname, 'index.html'),
                 flash64: resolve(__dirname, 'flash64/index.html'),
+                flash64Obrigado: resolve(__dirname, 'flash64/obrigado/index.html'),
             },
             output: {
                 manualChunks: {

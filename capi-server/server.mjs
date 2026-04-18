@@ -48,6 +48,8 @@ const SMTP_PORT = Number(process.env.SMTP_PORT || 587);
 const SMTP_USER = process.env.SMTP_USER;
 const SMTP_PASS = process.env.SMTP_PASS;
 const SMTP_FROM = process.env.SMTP_FROM || 'FastFix Academy <contato@fastfixcaxias.com>';
+const FLASH64_D0_SEND_HOUR = Number(process.env.FLASH64_D0_SEND_HOUR || 9);
+const FLASH64_TIMEZONE_OFFSET_MINUTES = Number(process.env.FLASH64_TIMEZONE_OFFSET_MINUTES || -180);
 const PARAM_BUILDER_DOMAINS = (process.env.PARAM_BUILDER_DOMAINS || '').split(',').map((d) => d.trim()).filter(Boolean);
 
 function createParamBuilder() {
@@ -120,6 +122,23 @@ function normalizePhone(phone) {
 
   // Mantém fallback para não quebrar outros formatos inesperados.
   return digits;
+}
+
+function getDelayUntilNextLocalHour(hour, minute = 0, timezoneOffsetMinutes = 0) {
+  const nowUtcMs = Date.now();
+  const localNowMs = nowUtcMs + timezoneOffsetMinutes * 60 * 1000;
+  const localNow = new Date(localNowMs);
+
+  const targetLocal = new Date(localNowMs);
+  targetLocal.setUTCHours(hour, minute, 0, 0);
+
+  // Se já passou do horário-alvo hoje, agenda para amanhã.
+  if (targetLocal.getTime() <= localNow.getTime()) {
+    targetLocal.setUTCDate(targetLocal.getUTCDate() + 1);
+  }
+
+  const targetUtcMs = targetLocal.getTime() - timezoneOffsetMinutes * 60 * 1000;
+  return Math.max(1000, targetUtcMs - nowUtcMs);
 }
 
 function phoneVariants(phone) {
@@ -1262,6 +1281,11 @@ async function scheduleFlash64WhatsAppUpsellFlow({ phone, name = 'Tudo bem?', le
   }
 
   const canceled = cancelFlash64UpsellWhatsAppFlow({ leadId, phone });
+  const d0DelayMs = getDelayUntilNextLocalHour(
+    Number.isFinite(FLASH64_D0_SEND_HOUR) ? FLASH64_D0_SEND_HOUR : 9,
+    0,
+    Number.isFinite(FLASH64_TIMEZONE_OFFSET_MINUTES) ? FLASH64_TIMEZONE_OFFSET_MINUTES : -180
+  );
 
   const jobs = [
     scheduleAutomation({
@@ -1269,9 +1293,9 @@ async function scheduleFlash64WhatsAppUpsellFlow({ phone, name = 'Tudo bem?', le
       flow: 'flash64_whatsapp_upsell',
       step: 'd0',
       phone,
-      delayMs: 15 * 1000,
+      delayMs: d0DelayMs,
       text: `Fala, ${name}! 👊 Vi que você adquiriu o Flash 64.\nSe quiser evoluir para reparo avançado e aumentar ticket de bancada, o próximo passo é o FastFix Academy.\nQuer que eu te envie o link?`,
-      meta: { source },
+      meta: { source, policy: 'send_at_next_9am' },
     }),
     scheduleAutomation({
       leadId,

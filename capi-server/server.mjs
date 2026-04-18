@@ -99,9 +99,43 @@ function sha256(value) {
 
 function normalizePhone(phone) {
   if (!phone) return undefined;
-  const normalized = String(phone).replace(/\D/g, '');
-  if (!normalized) return undefined;
-  return normalized;
+
+  let digits = String(phone).replace(/\D/g, '');
+  if (!digits) return undefined;
+
+  // Remove prefixo internacional "00" (ex.: 0055...)
+  if (digits.startsWith('00')) {
+    digits = digits.slice(2);
+  }
+
+  // Brasil já com DDI (55 + DDD + número)
+  if (digits.startsWith('55') && (digits.length === 12 || digits.length === 13)) {
+    return digits;
+  }
+
+  // Brasil sem DDI (DDD + número)
+  if (digits.length === 10 || digits.length === 11) {
+    return `55${digits}`;
+  }
+
+  // Mantém fallback para não quebrar outros formatos inesperados.
+  return digits;
+}
+
+function phoneVariants(phone) {
+  const normalized = normalizePhone(phone);
+  if (!normalized) return [];
+
+  const variants = new Set([normalized]);
+
+  // Variação com/sem DDI do Brasil para evitar bypass de tag por formato.
+  if (normalized.startsWith('55') && normalized.length > 11) {
+    variants.add(normalized.slice(2));
+  } else {
+    variants.add(`55${normalized}`);
+  }
+
+  return Array.from(variants);
 }
 
 function normalizeIp(rawIp) {
@@ -468,6 +502,26 @@ function scheduleAutomation({ leadId, flow, step, phone, text, delayMs, meta = {
     const current = scheduledJobs.get(id);
     if (!current || current.status !== 'scheduled') return;
 
+    const pauseInfo = await getContactAutomationPauseInfo(current.phone);
+    if (pauseInfo.paused) {
+      current.status = 'canceled';
+      current.canceledAt = new Date().toISOString();
+      current.cancelReason = pauseInfo.reason || 'manual_pause';
+      scheduledJobs.set(id, current);
+      await appendEventLog({
+        ts: current.canceledAt,
+        source: 'automation',
+        action: 'canceled_before_send',
+        flow,
+        step,
+        leadId,
+        phone: current.phone,
+        reason: current.cancelReason,
+      });
+      await persistJobs();
+      return;
+    }
+
     try {
       const evolution = await sendWhatsAppText(current.phone, current.text);
       current.status = 'sent';
@@ -553,6 +607,104 @@ function cancelFlash64UpsellWhatsAppFlow({ leadId, phone }) {
 
   persistJobs().catch(() => {});
   return canceled;
+}
+
+function cancelWhatsAppAutomationsByPhone(phone, reason = 'manual_pause') {
+  const normalizedPhone = normalizePhone(phone);
+  if (!normalizedPhone) return 0;
+
+  let canceled = 0;
+  for (const [id, job] of scheduledJobs.entries()) {
+    const samePhone = job.phone && normalizePhone(job.phone) === normalizedPhone;
+    if (samePhone && job.status === 'scheduled') {
+      clearTimeout(job.timeoutId);
+      job.status = 'canceled';
+      job.canceledAt = new Date().toISOString();
+      job.cancelReason = reason;
+      scheduledJobs.set(id, job);
+      canceled += 1;
+    }
+  }
+
+  persistJobs().catch(() => {});
+  return canceled;
+}
+
+async function markContactAutomationPaused(phone, reason) {
+  const normalizedPhone = normalizePhone(phone);
+  if (!normalizedPhone) return null;
+
+  const now = new Date().toISOString();
+  const contactMemory = await readContactMemory(normalizedPhone);
+  contactMemory.phone = normalizedPhone;
+  contactMemory.updatedAt = now;
+  contactMemory.tags = Array.isArray(contactMemory.tags) ? contactMemory.tags : [];
+  contactMemory.automation = contactMemory.automation || {};
+  contactMemory.automation.paused = true;
+  contactMemory.automation.pauseReason = reason;
+  contactMemory.automation.pausedAt = now;
+
+  if (reason === 'fastfix_purchased' && !contactMemory.tags.includes('fastfix_purchased')) {
+    contactMemory.tags.push('fastfix_purchased');
+  }
+
+  if (reason === 'owner_replied' && !contactMemory.tags.includes('human_takeover')) {
+    contactMemory.tags.push('human_takeover');
+  }
+
+  await saveContactMemory(normalizedPhone, contactMemory);
+  return contactMemory;
+}
+
+async function getContactAutomationPauseInfo(phone) {
+  const normalizedPhone = normalizePhone(phone);
+  if (!normalizedPhone) return { paused: false };
+
+  const variants = phoneVariants(normalizedPhone);
+  const memories = await Promise.all(variants.map((p) => readContactMemory(p)));
+
+  const contactMemory = memories[0] || {};
+  const mergedTags = new Set();
+
+  for (const memory of memories) {
+    const tags = Array.isArray(memory?.tags) ? memory.tags : [];
+    for (const tag of tags) mergedTags.add(tag);
+
+    const automation = memory?.automation || {};
+    if (automation.paused) {
+      return { paused: true, reason: automation.pauseReason || 'manual_pause', contactMemory: memory };
+    }
+  }
+
+  if (mergedTags.has('fastfix_purchased')) {
+    return { paused: true, reason: 'fastfix_purchased', contactMemory };
+  }
+
+  if (mergedTags.has('human_takeover')) {
+    return { paused: true, reason: 'owner_replied', contactMemory };
+  }
+
+  return { paused: false, contactMemory };
+}
+
+function normalizeInboundText(message = '') {
+  return String(message || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function getPresetCorporateReply(message = '') {
+  const normalized = normalizeInboundText(message);
+  const trigger = normalizeInboundText('Olá! Gostaria de saber mais sobre o eBook Dominando a Flash64.');
+
+  if (normalized === trigger) {
+    return 'Olá! 👋 É um prazer falar com você. Posso te apresentar rapidamente como o eBook Dominando a Flash64 funciona e como ele pode ajudar na sua bancada. Quais são suas principais dúvidas no momento?';
+  }
+
+  return null;
 }
 
 function detectIntent(message = '') {
@@ -1034,7 +1186,21 @@ app.post('/api/automation/waitlist', async (req, res) => {
   return res.json({ ok: true, jobs: jobs.map((j) => ({ ...j, timeoutId: undefined })) });
 });
 
-function scheduleCheckoutAbandonFlow({ phone, name = 'Tudo bem?', leadId, source = 'manual' }) {
+async function scheduleCheckoutAbandonFlow({ phone, name = 'Tudo bem?', leadId, source = 'manual' }) {
+  const normalizedPhone = normalizePhone(phone);
+  const pauseInfo = await getContactAutomationPauseInfo(normalizedPhone);
+  if (pauseInfo.paused) {
+    await appendEventLog({
+      ts: new Date().toISOString(),
+      source: 'automation',
+      action: 'checkout_abandon_not_scheduled_paused_contact',
+      leadId,
+      phone: normalizedPhone,
+      reason: pauseInfo.reason,
+    });
+    return [];
+  }
+
   const canceled = cancelLeadAutomations(leadId);
 
   const jobs = [
@@ -1080,7 +1246,21 @@ function scheduleCheckoutAbandonFlow({ phone, name = 'Tudo bem?', leadId, source
   return jobs;
 }
 
-function scheduleFlash64WhatsAppUpsellFlow({ phone, name = 'Tudo bem?', leadId, source = 'manual' }) {
+async function scheduleFlash64WhatsAppUpsellFlow({ phone, name = 'Tudo bem?', leadId, source = 'manual' }) {
+  const normalizedPhone = normalizePhone(phone);
+  const pauseInfo = await getContactAutomationPauseInfo(normalizedPhone);
+  if (pauseInfo.paused) {
+    await appendEventLog({
+      ts: new Date().toISOString(),
+      source: 'automation',
+      action: 'flash64_whatsapp_upsell_not_scheduled_paused_contact',
+      leadId,
+      phone: normalizedPhone,
+      reason: pauseInfo.reason,
+    });
+    return [];
+  }
+
   const canceled = cancelFlash64UpsellWhatsAppFlow({ leadId, phone });
 
   const jobs = [
@@ -1139,7 +1319,7 @@ app.post('/api/automation/checkout-abandon', async (req, res) => {
   const { phone, name = 'Tudo bem?', lead_id } = req.body || {};
   if (!phone || !lead_id) return res.status(400).json({ ok: false, error: 'phone e lead_id são obrigatórios' });
 
-  const jobs = scheduleCheckoutAbandonFlow({ phone, name, leadId: lead_id, source: 'manual_api' });
+  const jobs = await scheduleCheckoutAbandonFlow({ phone, name, leadId: lead_id, source: 'manual_api' });
 
   return res.json({ ok: true, jobs: jobs.map((j) => ({ ...j, timeoutId: undefined })) });
 });
@@ -1149,7 +1329,7 @@ app.post('/api/automation/whatsapp/flash64-upsell', async (req, res) => {
     const { lead_id, phone, name } = req.body || {};
     if (!lead_id || !phone) return res.status(400).json({ ok: false, error: 'lead_id e phone são obrigatórios' });
 
-    const jobs = scheduleFlash64WhatsAppUpsellFlow({ leadId: lead_id, phone, name: name || 'Tudo bem?', source: 'manual_api' });
+    const jobs = await scheduleFlash64WhatsAppUpsellFlow({ leadId: lead_id, phone, name: name || 'Tudo bem?', source: 'manual_api' });
     return res.json({ ok: true, jobs: jobs.map((j) => ({ ...j, timeoutId: undefined })) });
   } catch (error) {
     return res.status(500).json({ ok: false, error: error.message });
@@ -1193,16 +1373,27 @@ app.post('/api/evolution/inbound', async (req, res) => {
       }
     }
 
-    if (data.key?.fromMe === true || data.fromMe === true) {
-      return res.json({ ok: true, ignored: true, reason: 'from_me' });
-    }
-
     const phone = normalizePhone(
       data.key?.remoteJid?.replace('@s.whatsapp.net', '') ||
       data.from ||
       data.sender ||
       data.phone
     );
+
+    if (data.key?.fromMe === true || data.fromMe === true) {
+      if (phone) {
+        const canceled = cancelWhatsAppAutomationsByPhone(phone, 'owner_replied');
+        await markContactAutomationPaused(phone, 'owner_replied');
+        await appendEventLog({
+          ts: new Date().toISOString(),
+          source: 'automation',
+          action: 'paused_on_owner_reply',
+          phone,
+          canceled,
+        });
+      }
+      return res.json({ ok: true, ignored: true, reason: 'from_me' });
+    }
 
     const text =
       data.message?.conversation ||
@@ -1263,7 +1454,10 @@ app.post('/api/evolution/inbound', async (req, res) => {
     }
 
     contactMemory = await readContactMemory(phone);
-    const { intent, reply } = await generateAgentReply(text, contactMemory);
+    const presetReply = getPresetCorporateReply(text);
+    const { intent, reply } = presetReply
+      ? { intent: 'ebook_flash64_interest', reply: presetReply }
+      : await generateAgentReply(text, contactMemory);
 
     const now = new Date().toISOString();
     if (!reply) {
@@ -1558,7 +1752,7 @@ app.post('/api/hotmart/webhook', async (req, res) => {
       }
 
       if (isFlash64 && buyerPhone && externalId) {
-        const whatsappJobs = scheduleFlash64WhatsAppUpsellFlow({
+        const whatsappJobs = await scheduleFlash64WhatsAppUpsellFlow({
           leadId: externalId,
           phone: buyerPhone,
           name: firstName,
@@ -1579,6 +1773,10 @@ app.post('/api/hotmart/webhook', async (req, res) => {
       if (isFastFixUpsell) {
         const canceledEmailJobs = cancelFlash64UpsellEmailFlow({ leadId: externalId, email: buyerEmail });
         const canceledWhatsAppJobs = cancelFlash64UpsellWhatsAppFlow({ leadId: externalId, phone: buyerPhone });
+        const canceledByPhone = cancelWhatsAppAutomationsByPhone(buyerPhone, 'fastfix_purchased');
+        if (buyerPhone) {
+          await markContactAutomationPaused(buyerPhone, 'fastfix_purchased');
+        }
         await appendEventLog({
           ts: new Date().toISOString(),
           source: 'automation_email',
@@ -1586,8 +1784,10 @@ app.post('/api/hotmart/webhook', async (req, res) => {
           leadId: externalId,
           orderId: parsed.orderId,
           email: buyerEmail,
+          phone: normalizePhone(buyerPhone),
           canceledEmailJobs,
           canceledWhatsAppJobs,
+          canceledByPhone,
         });
       }
     }
@@ -1597,7 +1797,7 @@ app.post('/api/hotmart/webhook', async (req, res) => {
       const name = parsed.buyer.name ? String(parsed.buyer.name).split(' ')[0] : 'Tudo bem?';
 
       if (phone && externalId) {
-        const jobs = scheduleCheckoutAbandonFlow({
+        const jobs = await scheduleCheckoutAbandonFlow({
           phone,
           name,
           leadId: externalId,

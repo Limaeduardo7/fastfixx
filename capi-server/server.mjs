@@ -1446,6 +1446,70 @@ app.post('/api/automation/whatsapp/flash64-upsell', async (req, res) => {
   }
 });
 
+app.post('/api/automation/whatsapp/flash64-upsell/send-d0-now', async (req, res) => {
+  try {
+    const { lead_id, phone } = req.body || {};
+    if (!lead_id && !phone) {
+      return res.status(400).json({ ok: false, error: 'lead_id ou phone é obrigatório' });
+    }
+
+    const normalizedPhone = normalizePhone(phone);
+    const job = Array.from(scheduledJobs.values()).find((j) =>
+      j.flow === 'flash64_whatsapp_upsell' &&
+      j.step === 'd0' &&
+      j.status === 'scheduled' &&
+      ((lead_id && j.leadId === lead_id) || (normalizedPhone && j.phone === normalizedPhone))
+    );
+
+    if (!job) {
+      return res.status(404).json({ ok: false, error: 'Nenhum D0 agendado encontrado para os filtros informados' });
+    }
+
+    const pauseInfo = await getContactAutomationPauseInfo(job.phone);
+    if (pauseInfo.paused) {
+      clearTimeout(job.timeoutId);
+      job.status = 'canceled';
+      job.canceledAt = new Date().toISOString();
+      job.cancelReason = pauseInfo.reason || 'manual_pause';
+      scheduledJobs.set(job.id, job);
+      await persistJobs();
+      await appendEventLog({
+        ts: job.canceledAt,
+        source: 'automation',
+        action: 'flash64_whatsapp_d0_send_now_blocked_paused_contact',
+        leadId: job.leadId,
+        phone: job.phone,
+        reason: job.cancelReason,
+      });
+      return res.status(409).json({ ok: false, error: `Contato pausado: ${job.cancelReason}` });
+    }
+
+    const evolution = await sendWhatsAppText(job.phone, job.text);
+    clearTimeout(job.timeoutId);
+    job.status = 'sent';
+    job.sentAt = new Date().toISOString();
+    job.evolution = evolution;
+    job.meta = { ...(job.meta || {}), forced_now: true };
+
+    scheduledJobs.set(job.id, job);
+    await persistJobs();
+    await appendEventLog({
+      ts: job.sentAt,
+      source: 'automation',
+      action: 'sent',
+      flow: job.flow,
+      step: job.step,
+      leadId: job.leadId,
+      phone: job.phone,
+      forced_now: true,
+    });
+
+    return res.json({ ok: true, job: { ...job, timeoutId: undefined } });
+  } catch (error) {
+    return res.status(500).json({ ok: false, error: error.message });
+  }
+});
+
 app.post('/api/automation/email/flash64-upsell', async (req, res) => {
   try {
     const { lead_id, email, name } = req.body || {};

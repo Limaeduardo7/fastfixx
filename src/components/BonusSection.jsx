@@ -89,9 +89,11 @@ export default function BonusSection() {
                             <p className="text-gray-500 text-sm">ou 12x de R$ 41,42 sem juros</p>
                         </div>
 
-                        <CTAButton action="checkout" placement="offer_checkout" className="w-full max-w-md mx-auto shadow-2xl shadow-primary/40 uppercase tracking-wider text-lg py-5 font-extrabold">
-                            Comprar agora
-                        </CTAButton>
+                        <div className="flex justify-center">
+                            <CTAButton action="checkout" placement="offer_checkout" className="w-full max-w-md shadow-2xl shadow-primary/40 uppercase tracking-wider text-lg py-5 font-extrabold">
+                                Comprar agora
+                            </CTAButton>
+                        </div>
                         <p className="text-gray-500 text-xs text-center">Um único reparo de placa já paga o curso inteiro.</p>
                     </Reveal>
                 </div>

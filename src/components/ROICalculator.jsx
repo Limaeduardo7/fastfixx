@@ -97,13 +97,15 @@ export default function ROICalculator() {
                             </p>
                         </div>
 
-                        <CTAButton
-                            action="checkout"
-                            placement="roi_calculator"
-                            className="w-full max-w-md mx-auto shadow-2xl shadow-primary/30 uppercase tracking-wider font-extrabold py-4"
-                        >
-                            Comprar agora
-                        </CTAButton>
+                        <div className="flex justify-center">
+                            <CTAButton
+                                action="checkout"
+                                placement="roi_calculator"
+                                className="w-full max-w-md shadow-2xl shadow-primary/30 uppercase tracking-wider font-extrabold py-4"
+                            >
+                                Comprar agora
+                            </CTAButton>
+                        </div>
                     </div>
                 </Reveal>
             </div>

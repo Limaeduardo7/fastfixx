@@ -71,7 +71,7 @@ export default function AcademyPromoSection() {
               style={{ background: 'linear-gradient(135deg, #0d0d1a 0%, #0a0a16 100%)' }}
             />
 
-            <div className="relative bg-gradient-to-br from-orange-500/[0.07] via-white/[0.02] to-violet-500/[0.07] border border-orange-500/20 rounded-3xl p-7 sm:p-10 md:p-14">
+            <div className="relative bg-black border border-orange-500/20 rounded-3xl p-7 sm:p-10 md:p-14">
               {/* Banner */}
               <div className="rounded overflow-hidden mb-8 -mx-1">
                 <img

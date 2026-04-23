@@ -1,4 +1,3 @@
-const PIXEL_ID = import.meta.env.VITE_META_PIXEL_ID;
 const CAPI_ENDPOINT = import.meta.env.VITE_META_CAPI_ENDPOINT || '/api/meta/events';
 const LEAD_ID_KEY = 'fastfix_lead_id';
 const TRACKING_CTX_KEY = 'fastfix_tracking_ctx';
@@ -53,40 +52,8 @@ function getTrackingContext() {
   return JSON.parse(localStorage.getItem(TRACKING_CTX_KEY) || '{}');
 }
 
-function ensureFbqLoaded() {
-  if (window.fbq) return;
-
-  /* eslint-disable */
-  !(function (f, b, e, v, n, t, s) {
-    if (f.fbq) return;
-    n = f.fbq = function () {
-      n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);
-    };
-    if (!f._fbq) f._fbq = n;
-    n.push = n;
-    n.loaded = true;
-    n.version = '2.0';
-    n.queue = [];
-    t = b.createElement(e);
-    t.async = true;
-    t.src = v;
-    s = b.getElementsByTagName(e)[0];
-    s.parentNode.insertBefore(t, s);
-  })(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
-  /* eslint-enable */
-}
-
 function eventId(eventName) {
   return `${eventName}_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
-}
-
-export function initMetaPixel() {
-  if (!PIXEL_ID || window.__metaPixelInitialized) return;
-  ensureFbqLoaded();
-  ensureLeadId();
-  captureTrackingContext();
-  window.fbq('init', PIXEL_ID);
-  window.__metaPixelInitialized = true;
 }
 
 export function trackEvent(eventName, customData = {}) {
@@ -99,10 +66,6 @@ export function trackEvent(eventName, customData = {}) {
     ...customData,
     lead_id: leadId,
   };
-
-  if (PIXEL_ID && window.fbq) {
-    window.fbq('track', eventName, enrichedCustomData, { eventID: id });
-  }
 
   const payload = {
     event_name: eventName,

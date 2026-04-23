@@ -17,14 +17,13 @@ import EbookFooter from './ebook/EbookFooter'
 import EbookWhatsApp from './ebook/EbookWhatsApp'
 import EbookNotifications from './ebook/EbookNotifications'
 import ThankYouPage from './ebook/ThankYouPage'
-import { initMetaPixel, trackPageView } from './lib/metaTracking'
+import { trackPageView } from './lib/metaTracking'
 
 export default function EbookApp() {
   const pathname = (window.location.pathname || '').replace(/\/+$/, '')
   const isThankYouPage = pathname === '/flash64/obrigado'
 
   useEffect(() => {
-    initMetaPixel()
     if (!window.__ebookPageViewTracked) {
       trackPageView()
       window.__ebookPageViewTracked = true

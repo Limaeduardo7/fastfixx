@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 
 const notifications = [
     { name: 'Marcos', city: 'Campinas', state: 'SP' },
@@ -33,6 +34,15 @@ const notifications = [
     { name: 'Nayara', city: 'Porto Velho', state: 'RO' },
 ];
 
+const avatarColors = [
+    ['#FF6B00', '#FF8C42'],
+    ['#7C3AED', '#A78BFA'],
+    ['#059669', '#34D399'],
+    ['#2563EB', '#60A5FA'],
+    ['#DC2626', '#F87171'],
+    ['#D97706', '#FCD34D'],
+];
+
 function getNextIndex(current) {
     if (notifications.length <= 1) return 0;
     let next = current;
@@ -43,51 +53,84 @@ function getNextIndex(current) {
 export default function EbookNotifications() {
     const [currentIndex, setCurrentIndex] = useState(() => Math.floor(Math.random() * notifications.length));
     const [isVisible, setIsVisible] = useState(false);
+    const [progress, setProgress] = useState(100);
+
+    const VISIBLE_MS = 5000;
 
     useEffect(() => {
-        let hideTimeout;
-        let nextTimeout;
+        let hideTimeout, nextTimeout, progressInterval;
         let current = currentIndex;
 
         const runCycle = () => {
+            setProgress(100);
             setIsVisible(true);
-            const visibleFor = 4200 + Math.floor(Math.random() * 2400);
-            const nextDelay = 9000 + Math.floor(Math.random() * 10000);
+
+            const start = Date.now();
+            progressInterval = window.setInterval(() => {
+                const elapsed = Date.now() - start;
+                setProgress(Math.max(0, 100 - (elapsed / VISIBLE_MS) * 100));
+            }, 50);
+
+            const nextDelay = 18000 + Math.floor(Math.random() * 12000);
 
             hideTimeout = window.setTimeout(() => {
+                clearInterval(progressInterval);
                 setIsVisible(false);
                 nextTimeout = window.setTimeout(() => {
                     current = getNextIndex(current);
                     setCurrentIndex(current);
                     runCycle();
                 }, nextDelay);
-            }, visibleFor);
+            }, VISIBLE_MS);
         };
 
-        nextTimeout = window.setTimeout(runCycle, 2500);
+        nextTimeout = window.setTimeout(runCycle, 10000);
 
         return () => {
-            window.clearTimeout(hideTimeout);
-            window.clearTimeout(nextTimeout);
+            clearTimeout(hideTimeout);
+            clearTimeout(nextTimeout);
+            clearInterval(progressInterval);
         };
     }, []);
 
     const item = notifications[currentIndex];
+    const initial = item.name[0].toUpperCase();
+    const colorIndex = item.name.charCodeAt(0) % avatarColors.length;
+    const [from, to] = avatarColors[colorIndex];
 
-    return (
+    const toast = (
         <aside aria-live="polite" className={`purchase-toast ${isVisible ? 'is-visible' : ''}`}>
-            <div className="purchase-toast__icon" aria-hidden="true">
-                <span dangerouslySetInnerHTML={{ __html: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>` }} />
-            </div>
-            <div className="purchase-toast__content">
-                <div className="purchase-toast__eyebrow">
-                    <span className="purchase-toast__badge">Nova compra</span>
+            {/* Top accent line */}
+            <div className="purchase-toast__accent" />
+
+            <div className="purchase-toast__body">
+                {/* Avatar */}
+                <div
+                    className="purchase-toast__avatar"
+                    style={{ background: `linear-gradient(135deg, ${from}, ${to})` }}
+                    aria-hidden="true"
+                >
+                    {initial}
+                    <span className="purchase-toast__live-dot" />
                 </div>
-                <p className="purchase-toast__title">
-                    <strong>{item.name}</strong> de {item.city}, {item.state}
-                </p>
-                <p className="purchase-toast__text">acabou de garantir o eBook.</p>
+
+                {/* Content */}
+                <div className="purchase-toast__content">
+                    <p className="purchase-toast__label">Nova compra</p>
+                    <p className="purchase-toast__name">
+                        <strong>{item.name}</strong>
+                        <span className="purchase-toast__location"> · {item.city}, {item.state}</span>
+                    </p>
+                    <p className="purchase-toast__sub">acabou de garantir o eBook Flash64 ✓</p>
+                </div>
+            </div>
+
+            {/* Progress bar */}
+            <div className="purchase-toast__progress-track">
+                <div className="purchase-toast__progress-bar" style={{ width: `${progress}%` }} />
             </div>
         </aside>
     );
+
+    return createPortal(toast, document.body);
 }

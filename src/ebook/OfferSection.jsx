@@ -170,6 +170,45 @@ export default function OfferSection() {
             </div>
           </div>
         </Reveal>
+
+        {/* Animated attention arrow */}
+        <Reveal delay={300}>
+          <div className="flex flex-col items-center gap-3 mt-10">
+            <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-[#FF6B00]">
+              Oferta imperdível abaixo
+            </p>
+            <div className="flex flex-col items-center gap-1">
+              {[0, 1, 2].map((i) => (
+                <svg
+                  key={i}
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="22"
+                  height="22"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#FF6B00"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  style={{
+                    opacity: 1 - i * 0.28,
+                    animation: `offerBounce 1.4s ease-in-out infinite`,
+                    animationDelay: `${i * 0.18}s`,
+                  }}
+                >
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
+              ))}
+            </div>
+          </div>
+        </Reveal>
+
+        <style>{`
+          @keyframes offerBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(7px); }
+          }
+        `}</style>
       </div>
     </section>
   );

@@ -35,9 +35,10 @@ export default function TestimonialsSection() {
                             <div className="relative w-full max-w-[280px] aspect-[9/16] rounded-2xl overflow-hidden bg-black shadow-xl ring-1 ring-black/5">
                                 <video
                                     src="/depoimento-video.mp4"
+                                    poster="/depoimento-video-poster.webp"
                                     controls
                                     playsInline
-                                    preload="metadata"
+                                    preload="none"
                                     className="absolute inset-0 w-full h-full object-cover"
                                     aria-label="Depoimento em vídeo de aluno FastFix Academy"
                                 />

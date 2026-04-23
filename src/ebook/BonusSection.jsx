@@ -20,7 +20,7 @@ const bonuses = [
     label: 'eBook Bônus',
     title: 'Troca de Memória Flash64',
     description: 'O guia essencial para técnicos que querem dominar a troca de eMMC/UFS. Procedimentos claros, sem improviso.',
-    image: '/images/Ebook-Troca-Memoria.png',
+    image: '/bonus1-image.webp',
     price: 'R$ 37,00',
     features: bonusFeatures,
   },

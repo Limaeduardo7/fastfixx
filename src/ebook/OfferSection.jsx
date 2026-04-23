@@ -55,11 +55,13 @@ export default function OfferSection() {
                   {/* eBook mockup image */}
                   <div className="flex justify-center py-2">
                     <img
-                      src="/images/ebook-mockup.png"
+                      src="/flash64-hero.webp"
                       alt="eBook Flash 64 na Prática"
                       loading="lazy"
                       decoding="async"
-                      className="w-48 md:w-56 drop-shadow-2xl"
+                      width="1402"
+                      height="1122"
+                      className="w-56 md:w-72 rounded-xl drop-shadow-2xl"
                       style={{ filter: 'drop-shadow(0 0 24px rgba(255,107,0,0.3)) drop-shadow(0 0 48px rgba(139,92,246,0.15))' }}
                     />
                   </div>

@@ -108,12 +108,14 @@ export default function EbookHero() {
 
           <div className="flex justify-center">
             <img
-              src="/images/Conjunto-Ebooks-+-ROBO.png"
+              src="/flash64-hero.webp"
               alt="eBook Flash 64 na Prática - Mockup"
               loading="eager"
               fetchPriority="high"
               decoding="async"
-              className="w-[90vw] max-w-[380px] sm:max-w-[420px] lg:max-w-[480px] drop-shadow-2xl"
+              width="1402"
+              height="1122"
+              className="w-[90vw] max-w-[400px] sm:max-w-[460px] lg:max-w-[520px] rounded-2xl drop-shadow-2xl"
               style={{ filter: 'drop-shadow(0 0 40px rgba(255,107,0,0.25)) drop-shadow(0 0 80px rgba(139,92,246,0.15))' }}
             />
           </div>

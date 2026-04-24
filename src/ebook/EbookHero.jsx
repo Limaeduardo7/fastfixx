@@ -103,7 +103,7 @@ export default function EbookHero() {
         <Reveal className="space-y-6 text-center flex flex-col items-center">
           <Badge className="inline-flex">
             <span className="w-2 h-2 bg-primary rounded-full animate-pulse" />
-            eBook Técnico - Flash 64
+            Método de Bancada · Flash 64
           </Badge>
 
           <div className="flex justify-center">
@@ -138,12 +138,13 @@ export default function EbookHero() {
           <div className="section-divider max-w-[200px] mx-auto" />
 
           <p className="text-gray-300 text-lg lg:text-xl max-w-lg leading-relaxed mx-auto">
-            Pare de perder peças e tempo na bancada. Domine{' '}
-            <span className="text-cyan-400 font-bold">ISP</span>,{' '}
-            <span className="text-violet-400 font-bold">UFS</span>,{' '}
-            <span className="text-blue-400 font-bold">eMMC</span>,{' '}
-            <span className="text-emerald-400 font-bold">chip off</span> e
-            estabilidade de comunicação com método.
+            Quando a leitura falha, o{' '}
+            <span className="text-cyan-400 font-bold">ISP</span> não estabiliza
+            ou você não sabe se vai de{' '}
+            <span className="text-violet-400 font-bold">eMMC</span> ou{' '}
+            <span className="text-emerald-400 font-bold">chip-off</span>, o
+            problema geralmente não é a ferramenta. É não ter um critério claro
+            para saber o que testar, em qual ordem e por quê.
           </p>
 
           {/* Buttons */}
@@ -163,7 +164,7 @@ export default function EbookHero() {
               className="flex items-center justify-center gap-3 text-base font-bold px-8 py-4 rounded-xl border border-cyan-500/30 bg-white/[0.03] backdrop-blur-sm text-cyan-400 hover:bg-cyan-500/10 hover:border-cyan-500/50 transition-all cursor-pointer"
             >
               <ArrowDown className="w-5 h-5" />
-              Ver o que você vai aprender
+              Ver o que está dentro
             </button>
           </div>
 

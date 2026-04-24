@@ -37,18 +37,19 @@ export default function FinalCTA() {
       <div className="max-w-3xl mx-auto text-center space-y-10">
         <Reveal>
           <h2 className="text-2xl sm:text-3xl lg:text-5xl font-extrabold text-white mb-4 sm:mb-6">
-            Pare de perder <span className="text-gradient-fire">tempo</span> com{' '}
-            <span className="text-red-400">tentativa e erro</span>.
+            Cada placa que você trava{' '}
+            <span className="text-gradient-fire">sem critério</span>{' '}
+            é <span className="text-red-400">tempo e dinheiro</span> perdido.
           </h2>
           <p className="text-gray-300 text-lg leading-relaxed max-w-2xl mx-auto">
-            Tempo economizado. Critério técnico. Menos improviso. Domínio mais
-            rápido da ferramenta. Tudo isso em um único material.
+            Técnico que tem método não fica chutando. Ele decide o que testar, em qual ordem e por quê.
+            E resolve mais rápido, com mais segurança e menos prejuízo.
           </p>
         </Reveal>
 
         <Reveal delay={150}>
           <ShinyText
-            text="Cada dia sem método é dinheiro perdido na bancada."
+            text="Técnico que tem método não improvisa. Ele decide."
             color="#b5b5b5"
             shineColor="#06B6D4"
             speed={3}

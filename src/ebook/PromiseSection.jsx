@@ -6,8 +6,8 @@ import { Badge } from '../components/ui/badge'
 
 const transformations = [
   {
-    before: 'De tentativa e erro',
-    after: 'Para método direto',
+    before: 'Trocar fio sem saber por que falhou',
+    after: 'Entender o que está causando a instabilidade',
     beforeBg: 'from-red-500/10',
     afterBg: 'to-green-500/10',
     beforeColor: 'text-red-400',
@@ -15,8 +15,8 @@ const transformations = [
     arrowColor: 'text-green-400',
   },
   {
-    before: 'De improviso na bancada',
-    after: 'Para procedimento técnico claro',
+    before: 'Testar parâmetro no achismo',
+    after: 'Saber qual configurar e entender por quê',
     beforeBg: 'from-orange-500/10',
     afterBg: 'to-cyan-500/10',
     beforeColor: 'text-orange-400',
@@ -24,8 +24,8 @@ const transformations = [
     arrowColor: 'text-cyan-400',
   },
   {
-    before: 'De insegurança',
-    after: 'Para mais taxa de acerto',
+    before: 'Dúvida entre ISP, chip-off ou outra rota',
+    after: 'Critério claro para decidir em cada situação',
     beforeBg: 'from-pink-500/10',
     afterBg: 'to-emerald-500/10',
     beforeColor: 'text-pink-400',
@@ -33,8 +33,8 @@ const transformations = [
     arrowColor: 'text-emerald-400',
   },
   {
-    before: 'De horas perdidas',
-    after: 'Para aprendizado encurtado',
+    before: 'Horas parado sem sair do lugar',
+    after: 'Mais confiança e menos retrabalho',
     beforeBg: 'from-yellow-500/10',
     afterBg: 'to-blue-500/10',
     beforeColor: 'text-yellow-400',
@@ -58,8 +58,8 @@ export default function PromiseSection() {
           <div className="text-center mb-16">
             <Badge className="mb-4">A Transformação</Badge>
             <h2 className="text-3xl md:text-4xl font-bold text-white">
-              Clareza técnica que se transforma em{' '}
-              <span className="text-gradient-multi">resultado</span>
+              O que muda quando você tem um{' '}
+              <span className="text-gradient-multi">critério na bancada</span>
             </h2>
           </div>
         </Reveal>
@@ -90,7 +90,7 @@ export default function PromiseSection() {
           <div className="gradient-border rounded-2xl">
             <div className="bg-black/80 backdrop-blur-sm rounded-2xl p-6 sm:p-10 md:p-16 text-center">
               <ShinyText
-                text="Estruturado por quem já passou pelas mesmas dificuldades na bancada."
+                text="Feito por quem já ficou travado nas mesmas situações e precisou encontrar um método por conta própria."
                 className="text-base sm:text-xl md:text-2xl italic font-medium"
                 shineColor="#06B6D4"
                 color="#8B5CF6"
@@ -101,10 +101,10 @@ export default function PromiseSection() {
 
         <Reveal delay={650}>
           <p className="text-gray-400 text-center max-w-2xl mx-auto leading-relaxed mt-12">
-            Este material foi estruturado para{' '}
-            <span className="text-cyan-400 font-semibold">encurtar</span> a curva de aprendizado e transformar
-            conhecimento disperso em{' '}
-            <span className="text-primary font-semibold">procedimento técnico</span> claro, aplicável e replicável.
+            Em vez de decorar configurações soltas, você vai entender a{' '}
+            <span className="text-cyan-400 font-semibold">lógica por trás de cada decisão</span>. Assim você sabe o que testar,
+            quando testar e por quê testar. E isso você{' '}
+            <span className="text-primary font-semibold">leva para qualquer placa</span> que aparecer na sua bancada.
           </p>
         </Reveal>
       </div>

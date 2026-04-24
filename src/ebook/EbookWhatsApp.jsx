@@ -16,6 +16,29 @@ export default function EbookWhatsApp() {
     >
       <span className="whatsapp-bubble">Dúvidas? Fale conosco</span>
       <MessageCircle size={28} />
+      <span
+        aria-label="1 mensagem não lida"
+        style={{
+          position: 'absolute',
+          top: '-4px',
+          right: '-4px',
+          width: '20px',
+          height: '20px',
+          borderRadius: '999px',
+          background: '#ef4444',
+          border: '2px solid #fff',
+          color: '#fff',
+          fontSize: '11px',
+          fontWeight: '800',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          lineHeight: 1,
+          animation: 'waBadgePop 0.3s cubic-bezier(0.34,1.56,0.64,1) both',
+        }}
+      >
+        1
+      </span>
     </a>
   );
 }

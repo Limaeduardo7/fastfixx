@@ -36,8 +36,8 @@ export default function FinalCTASection() {
 
                         <div className="pt-2">
                             <p className="text-gray-400 text-sm mb-1">Por apenas</p>
-                            <p className="text-4xl font-extrabold text-primary">R$ 497,00</p>
-                            <p className="text-gray-500 text-xs mt-1">ou 12x de R$ 41,42</p>
+                            <p className="text-4xl font-extrabold text-primary">R$ 397,00</p>
+                            <p className="text-gray-500 text-xs mt-1">ou 12x de R$ 33,08</p>
                         </div>
 
                         <CTAButton action="checkout" placement="final_cta" className="w-full max-w-md mx-auto shadow-2xl shadow-primary/40 uppercase tracking-widest text-lg py-5 font-extrabold hover:scale-[1.02] active:scale-[0.98]">

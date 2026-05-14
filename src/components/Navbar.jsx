@@ -24,7 +24,7 @@ export default function Navbar() {
 
     const handleCTA = () => {
         setMenuOpen(false);
-        trackEvent('InitiateCheckout', { currency: 'BRL', value: 497, placement: 'navbar' });
+        trackEvent('InitiateCheckout', { currency: 'BRL', value: 397, placement: 'navbar' });
         scrollToOffer();
     };
 

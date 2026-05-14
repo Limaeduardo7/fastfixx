@@ -9,7 +9,7 @@ export default function ROICalculator() {
 
     const monthlyLoss = boards * AVG_REPAIR_VALUE;
     const yearlyLoss = monthlyLoss * 12;
-    const courseCost = 497;
+    const courseCost = 397;
     const yearlyMultiple = Math.floor(yearlyLoss / courseCost);
 
     const formatBRL = (value) =>
@@ -91,7 +91,7 @@ export default function ROICalculator() {
                         {/* Comparison */}
                         <div className="bg-primary/[0.08] border-2 border-primary/30 rounded-xl p-5 sm:p-6 text-center">
                             <p className="text-gray-300 text-sm sm:text-base">
-                                O FastFix Academy custa <strong className="text-white">R$ 497</strong>.
+                                O FastFix Academy custa <strong className="text-white">R$ 397</strong>.
                                 <br className="hidden sm:inline" />{' '}
                                 Você recupera <strong className="text-primary text-lg">{yearlyMultiple}x esse valor</strong> em 12 meses.
                             </p>

@@ -18,8 +18,8 @@ const objections = [
     },
     {
         emoji: '💰',
-        question: 'R$ 497 está difícil pra mim agora',
-        answer: 'Parcele em até 12x de R$ 41,42. Um único reparo de placa rende entre R$ 300 e R$ 800 — o primeiro conserto que você fizer já paga o curso inteiro. E ainda tem a garantia de 7 dias.',
+        question: 'R$ 397 está difícil pra mim agora',
+        answer: 'Parcele em até 12x de R$ 33,08. Um único reparo de placa rende entre R$ 300 e R$ 800 — o primeiro conserto que você fizer já paga o curso inteiro. E ainda tem a garantia de 7 dias.',
     },
 ];
 

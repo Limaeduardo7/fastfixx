@@ -77,7 +77,7 @@ export default function BonusSection() {
                                             <p className="text-orange-300/80 text-xs">Online + vitalício + 3 bônus</p>
                                         </div>
                                     </div>
-                                    <span className="text-primary font-extrabold text-base sm:text-lg">R$ 497</span>
+                                    <span className="text-primary font-extrabold text-base sm:text-lg">R$ 397</span>
                                 </div>
                             </div>
                         </div>
@@ -85,8 +85,8 @@ export default function BonusSection() {
                         {/* Main offer */}
                         <div className="text-center pt-4 border-t border-white/10 space-y-2">
                             <p className="text-gray-400 text-sm">Hoje, você leva <strong className="text-white">tudo</strong> por:</p>
-                            <p className="text-5xl font-extrabold text-primary">R$ 497<span className="text-3xl">,00</span></p>
-                            <p className="text-gray-500 text-sm">ou 12x de R$ 41,42 sem juros</p>
+                            <p className="text-5xl font-extrabold text-primary">R$ 397<span className="text-3xl">,00</span></p>
+                            <p className="text-gray-500 text-sm">ou 12x de R$ 33,08 sem juros</p>
                         </div>
 
                         <div className="flex justify-center">

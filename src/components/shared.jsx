@@ -48,7 +48,7 @@ export function CTAButton({ children, className = '', variant = 'primary', actio
         <button
             type="button"
             onClick={() => {
-                trackEvent('InitiateCheckout', { currency: 'BRL', value: 497, placement });
+                trackEvent('InitiateCheckout', { currency: 'BRL', value: 397, placement });
 
                 if (action === 'checkout') {
                     window.open(buildCheckoutUrl(HOTMART_URL), '_blank');

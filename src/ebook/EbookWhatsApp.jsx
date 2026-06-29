@@ -2,7 +2,7 @@ import { MessageCircle } from 'lucide-react';
 import { trackEvent } from '../lib/metaTracking';
 
 const WHATSAPP_URL =
-  'https://wa.me/5554991006375?text=Olá! Estou vendo o Flash 64 na Prática e tenho uma dúvida.';
+  'https://wa.me/5554981673607?text=Olá! Estou vendo o Flash 64 na Prática e tenho uma dúvida.';
 
 export default function EbookWhatsApp() {
   return (

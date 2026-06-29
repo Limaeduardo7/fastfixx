@@ -4,7 +4,7 @@ import { trackEvent } from '../lib/metaTracking';
 export default function WhatsAppButton() {
     return (
         <a
-            href="https://wa.me/5554991006375?text=Olá! Estou na página do FastFix Academy e tenho uma dúvida antes de decidir."
+            href="https://wa.me/5554981673607?text=Olá! Estou na página do FastFix Academy e tenho uma dúvida antes de decidir."
             className="whatsapp-float"
             target="_blank"
             rel="noopener noreferrer"

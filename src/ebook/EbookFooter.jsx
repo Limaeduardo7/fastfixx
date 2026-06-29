@@ -1,5 +1,5 @@
 const WHATSAPP_URL =
-  'https://wa.me/5554991006375?text=Olá! Estou na página do Flash 64 na Prática e preciso de ajuda.';
+  'https://wa.me/5554981673607?text=Olá! Estou na página do Flash 64 na Prática e preciso de ajuda.';
 
 export default function EbookFooter() {
   return (
